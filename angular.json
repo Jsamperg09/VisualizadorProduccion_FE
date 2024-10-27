@@ -62,10 +62,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "VisualizadorProduccion_FE:build:production"
+              "buildTarget": "VisualizadorProduccion_FE:build:production"
             },
             "development": {
-              "browserTarget": "VisualizadorProduccion_FE:build:development"
+              "buildTarget": "VisualizadorProduccion_FE:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -73,7 +73,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "VisualizadorProduccion_FE:build"
+            "buildTarget": "VisualizadorProduccion_FE:build"
           }
         },
         "test": {
