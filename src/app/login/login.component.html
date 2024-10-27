@@ -1,0 +1,51 @@
+<div style="height: 100vh; margin-bottom: 10px;">
+    <nav class="navbar navbar-light bg-light">
+        <div class="container">
+          <a class="navbar-brand" href="#">
+            <img src="assets/logo.png" alt="" width="150">
+          </a>
+        </div>
+      </nav>
+      <div class="login-container">
+          <div class="login-box">
+              <img src="assets/logo.png" alt="DDC Logo" class="logo" width="200"
+                  height="90">
+              <div style="text-align: start;">
+                  <h1><b>Ingresar al Visualizador de Producción</b></h1>
+                  <p style="font-size: small; color: grey;">Accede a tu cuenta con tus
+                      credenciales.</p>
+              </div>
+      
+              <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Email</mat-label>
+                    <input matInput formControlName="email" type="email"/>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Contraseña</mat-label>
+                    <input matInput formControlName="password" type="password"/>
+                </mat-form-field>
+                  <button mat-raised-button
+                      class="full-width">Acceder</button>
+              </form>
+      
+              <div class="row">
+                  <div class="links">
+                      <p>¿Olvidaste tu contraseña?</p><a href="#">Recuperar acceso</a>
+                  </div>
+                  <div class="links">
+                      <p>¿Aun no tienes tu acceso?</p><a href="#">Solicítalo aqui</a>
+                  </div>
+              </div>
+          </div>
+      </div>  
+      <footer>
+        <button mat-flat-button>
+            <mat-icon color="white">help_outline</mat-icon>
+            Ayúda
+        </button>
+        <button mat-flat-button style="color: black;" class="text-body">
+            Terminos y Condiciones
+        </button>
+      </footer>
+</div>
