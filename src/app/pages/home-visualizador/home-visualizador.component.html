@@ -1,0 +1,409 @@
+<div class="homePage">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light static-top"
+        style="background: white!important;">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/home">
+                <img src="assets/logo.png" alt width="150">
+            </a>
+            <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a mat-flat-button style="background: rgb(0 60 170);"
+                            href="https://klarsys.github.io/angular-material-icons/"
+                            target="_blank">
+                            <mat-icon
+                                color="white">filter_center_focus</mat-icon>
+                            Monitor
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a mat-flat-button id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="justify-content: flex-start; background: white!important; color: black;">
+                            <img class="img-fluid rounded-circle shadow-2-strong" style="margin-right: 5px;" src="https://dwpdigital.blog.gov.uk/wp-content/uploads/sites/197/2016/07/P1090594-1.jpeg" width="35" height="20">
+                            Usuario Rol
+                            <mat-icon color="white" iconPositionEnd>keyboard_arrow_down</mat-icon>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end"
+                            aria-labelledby="navbarDropdown">
+                            <li>
+                                <a class="dropdown-item" mat-flat-button style="justify-content: flex-start; background: white!important; color: black; font-weight: lighter;"
+                                    href="https://klarsys.github.io/angular-material-icons/"
+                                    target="_blank">
+                                    <mat-icon style="color: rgb(226 101 100);">exit_to_app</mat-icon>
+                                    Cerrar Sesión
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div>
+        <ul class="breadcrumb">
+            <li style="color: rgb(129, 129, 129);">Inicio</li>
+            <li><a href="/home">Visualizador de Producción</a></li>
+        </ul>
+    </div>
+    <div class="welcome-section">
+        <div class="container mt-1">
+            <h2>Bienvenido Usuario <br> al Monitor de Producción</h2>
+            <div class="filter-bar">
+                <label for="filter">Filtrar por</label>          
+                <select class="form-select" id="filter" name="Centro" [(ngModel)]="centerSelected">
+                    <option hidden value="" disabled selected>Centro</option>
+                    <option [ngValue]="center" *ngFor="let center of centers">{{center}}</option>
+                </select>
+                <select class="form-select" [(ngModel)]="productorSelected">
+                    <option hidden value="" disabled selected>Productor</option>
+                    @for (filter of filters; track filter) {
+                        <option [value]="filter.producerCode">{{filter.producerCode}}</option>
+                    }
+                </select>
+                <select class="form-select" [(ngModel)]="batchSelected">
+                    <option hidden value="" disabled selected>Lote</option>
+                    @for (filter of filters; track filter) {
+                        <option [value]="filter.batchProcess">{{filter.batchProcess}}</option>
+                    }
+                </select>
+                <input type="text" class="form-control" placeholder="Buscar por palabra...">
+                <button class="btn btn-search" (click)="filterData()">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+                <button class="btn btn-export">
+                    <i class="bi bi-cloud-download"></i> Exportar
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="container principal-monitor" style="background: #ffff;">
+        <br>
+        <h5>Monitor de Información</h5>
+        <p style="font-weight: lighter;">En este módulo podrás ver Información referente a lotes de producción.</p>
+        <p-table 
+            [value]="data" 
+            selectionMode="single" 
+            [(selection)]="selectedRow" 
+            [paginator]="true" 
+            [rows]="rows"
+            [first]="first"
+            [showCurrentPageReport]="true"
+            [rowsPerPageOptions]="[10, 20, 30, 50]"
+            currentPageReportTemplate="Mostrando {last} de {totalRecords} resultados"
+            [tableStyle]="{ 'min-width': '50rem' }">
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th class="headerTable custom-sort-icon" pSortableColumn="center" style="width:20%">
+                            Centro <p-sortIcon field="center" />
+                        <th class="headerTable custom-sort-icon" pSortableColumn="line" style="width:20%">
+                            Linea<p-sortIcon field="line" />
+                        <th class="headerTable custom-sort-icon" pSortableColumn="species" style="width:20%">
+                            Especie <p-sortIcon field="species" />
+                        <th class="headerTable custom-sort-icon" pSortableColumn="variety" style="width:20%">
+                            Variedad <p-sortIcon field="variety" />
+                        <th class="headerTable custom-sort-icon" pSortableColumn="variety-ET" style="width:20%">
+                            Variedad ET<p-sortIcon field="variety-ET" />
+                        <th class="headerTable custom-sort-icon" pSortableColumn="process-batch" style="width:20%">
+                            Lote de Proceso<p-sortIcon field="process-batch" /> 
+                        <th class="headerTable custom-sort-icon" pSortableColumn="batch" style="width:20%">
+                            Lote<p-sortIcon field="batch" />
+                        <th class="headerTable custom-sort-icon" pSortableColumn="um" style="width:20%">
+                            UM<p-sortIcon field="um" />
+                        <th class="headerTable custom-sort-icon" pSortableColumn="material" style="width:20%">
+                            Material<p-sortIcon field="material" />
+                        <th class="headerTable custom-sort-icon" pSortableColumn="producer-code" style="width:20%">
+                            Cod. Productor<p-sortIcon field="producer-code" /> 
+                        <th class="headerTable custom-sort-icon" pSortableColumn="labeled-producer" style="width:20%">
+                            Prod. Etiquetado<p-sortIcon field="labeled-producer" /> 
+                        <th class="headerTable custom-sort-icon" pSortableColumn="name" style="width:20%">
+                            Nombre<p-sortIcon field="name" /> 
+                        <th class="headerTable custom-sort-icon" pSortableColumn="typification" style="width:20%">
+                            Tipificación<p-sortIcon field="typification" /> 
+                        <th class="headerTable custom-sort-icon" pSortableColumn="quality" style="width:20%">
+                            Calidad<p-sortIcon field="quality" /> 
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-data>
+                    <ng-container *ngIf="data.productions?.length">
+                        <tr [pSelectableRow]="data">
+                            <td>{{ data?.center }}</td>
+                            <td>{{ data?.line }}</td>
+                            <td>{{ data?.species }}</td>
+                            <td>{{ data?.variety }}</td>
+                            <td>{{ data?.varietyEt }}</td>
+                            <td>{{ data?.batchProcess }}</td>
+                            <td>{{ data?.batch }}</td>
+                            <td>{{ data?.um }}</td>
+                            <td>{{ data?.material }}</td>
+                            <td>{{ data?.producerCode }}</td>
+                            <td>{{ data?.labeledProducer }}</td>
+                            <td>{{ data?.name }}</td>
+                            <td>{{ data?.typification }}</td>
+                            <td>{{ data?.quality }}</td>
+                        </tr>
+                        <ng-container *ngFor="let production of data.productions">
+                            <tr [pSelectableRow]="production">
+                                <td>{{ production?.center }}</td>
+                                <td>{{ production?.line }}</td>
+                                <td>{{ production?.species }}</td>
+                                <td>{{ production?.variety }}</td>
+                                <td>{{ production?.varietyEt }}</td>
+                                <td>{{ production?.batchProcess }}</td>
+                                <td>{{ production?.batch }}</td>
+                                <td>{{ production?.um }}</td>
+                                <td>{{ production?.material }}</td>
+                                <td>{{ production?.producerCode }}</td>
+                                <td>{{ production?.labeledProducer }}</td>
+                                <td>{{ production?.name }}</td>
+                                <td>{{ production?.typification }}</td>
+                                <td>{{ production?.quality }}</td>
+                            </tr>
+                        </ng-container>
+                    </ng-container>
+                </ng-template>
+        </p-table>
+    </div>
+    <br>
+    <hr>
+    <br>
+    <div class="container-fluid projection">
+        <h5 style="margin-right: 10px;">Total y Proyección</h5>
+        <div class="cards" style="overflow-x: auto; padding-bottom: 10px;">
+            <div class="card">
+                <div class="card-header">Kilos Procesados</div>
+                <div class="card-content">
+                    <div class="item">
+                        <span class="indicator santina"></span>
+                        <span class="label">SANTINA</span>
+                        <span class="value">10.104 Kg</span>
+                    </div>
+                    <div class="item">
+                        <span class="indicator lapins"></span>
+                        <span class="label">LAPINS</span>
+                        <span class="value">11.355 Kg</span>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="card">
+                <div class="card-header">Proyección de Cajas Unitec</div>
+                <div class="card-content">
+                    <div class="item">
+                        <span class="indicator santina"></span>
+                        <span class="label">SANTINA</span>
+                        <span class="value">1.109 Cajas</span>
+                    </div>
+                    <div class="item">
+                        <span class="indicator lapins"></span>
+                        <span class="label">LAPINS</span>
+                        <span class="value">1.657 Cajas</span>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="card">
+                <div class="card-header">Proyección de Cajas Calidad</div>
+                <div class="card-content">
+                    <div class="item">
+                        <span class="indicator santina"></span>
+                        <span class="label">SANTINA</span>
+                        <span class="value">1.657 Cajas</span>
+                    </div>
+                    <div class="item">
+                        <span class="indicator lapins"></span>
+                        <span class="label">LAPINS</span>
+                        <span class="value">1.657 Cajas</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <hr>
+    <br>
+    <div class="table-container">
+        <h5 style="margin: 0px;">Tipificación y Calidad</h5>
+        <p>En este módulo podrás ver la Tipificación y Calidad de los lotes de producción.</p>
+      
+        <p-table 
+            class="typificationQuality"
+            [value]="data" 
+            [paginator]="true" 
+            [rows]="rows" 
+            [responsiveLayout]="'scroll'" 
+            selectionMode="single"
+            [showCurrentPageReport]="true"
+            [rowsPerPageOptions]="[10, 20, 30, 50]"
+            currentPageReportTemplate="Mostrando {last} de {totalRecords} resultados" 
+            [(selection)]="selectedRow">
+          <ng-template pTemplate="header">
+            <tr>
+              <th colspan="3" class="groupHeader" style="background: transparent; border: none !important;"></th>
+              <th colspan="8" class="groupHeader">Recepción de Calidad</th>
+              <th colspan="8" class="groupHeader">Real UNITEC</th>
+              <th colspan="8" class="groupHeader">Notificación Cajas</th>
+            </tr>
+            <tr>
+              <th class="headerTable">Especie (Variedad)</th>
+              <th class="headerTable">Tipificación</th>
+              <th class="headerTable">Lote de Proceso</th>                
+              <th class="headerTable">% EXP</th>
+              <th class="headerTable">L</th>
+              <th class="headerTable">XL</th>
+              <th class="headerTable">J</th>
+              <th class="headerTable">XJ</th>
+              <th class="headerTable">XXJ</th>
+              <th class="headerTable">XXXJ</th>
+              <th class="headerTable">XXXXJ</th>
+              <th class="headerTable">% EXP</th>
+              <th class="headerTable">L</th>
+              <th class="headerTable">XL</th>
+              <th class="headerTable">J</th>
+              <th class="headerTable">XJ</th>
+              <th class="headerTable">XXJ</th>
+              <th class="headerTable">XXXJ</th>
+              <th class="headerTable">XXXXJ</th>
+              <th class="headerTable">% EXP</th>
+              <th class="headerTable">L</th>
+              <th class="headerTable">XL</th>
+              <th class="headerTable">J</th>
+              <th class="headerTable">XJ</th>
+              <th class="headerTable">XXJ</th>
+              <th class="headerTable">XXXJ</th>
+              <th class="headerTable">XXXXJ</th>
+            </tr>
+          </ng-template>
+      
+          <ng-template pTemplate="body" let-data>
+            <tr [pSelectableRow]="data">
+              <td>{{ data?.species }}</td>
+              <td>{{ data?.typification }}</td>
+              <td>{{ data?.batch }}</td>
+              <td>{{ data?.reception?.exp | percent }}</td>
+              <td>{{ data?.reception?.l | percent }}</td>
+              <td>{{ data?.reception?.xl | percent }}</td>
+              <td>{{ data?.reception?.j | percent }}</td>
+              <td>{{ data?.reception?.xj | percent }}</td>
+              <td>{{ data?.reception?.xxj | percent }}</td>
+              <td>{{ data?.reception?.xxxj | percent }}</td>
+              <td>{{ data?.reception?.xxxjx | percent }}</td>
+              <td>{{ data?.unitec?.exp | percent }}</td>
+              <td>{{ data?.unitec?.l | percent }}</td>
+              <td>{{ data?.unitec?.xl | percent }}</td>
+              <td>{{ data?.unitec?.j | percent }}</td>
+              <td>{{ data?.unitec?.xj | percent }}</td>
+              <td>{{ data?.unitec?.xxj | percent }}</td>
+              <td>{{ data?.unitec?.xxxj | percent }}</td>
+              <td>{{ data?.unitec?.xxxjx | percent }}</td>
+              <td>{{ data?.notification?.exp }}</td>
+              <td>{{ data?.notification?.l }}</td>
+              <td>{{ data?.notification?.xl }}</td>
+              <td>{{ data?.notification?.j }}</td>
+              <td>{{ data?.notification?.xj }}</td>
+              <td>{{ data?.notification?.xxj }}</td>
+              <td>{{ data?.notification?.xxxj }}</td>
+              <td>{{ data?.notification?.xxxjx }}</td>            
+            </tr>
+            <ng-container *ngIf="data.productions?.length">
+                <ng-container *ngFor="let production of data.productions">
+                    <tr [pSelectableRow]="production">
+                      <td>{{ production?.species }}</td>
+                      <td>{{ production?.typification }}</td>
+                      <td>{{ production?.batch }}</td>
+                      <td>{{ production?.reception?.exp | percent }}</td>
+                      <td>{{ production?.reception?.l | percent }}</td>
+                      <td>{{ production?.reception?.xl | percent }}</td>
+                      <td>{{ production?.reception?.j | percent }}</td>
+                      <td>{{ production?.reception?.xj | percent }}</td>
+                      <td>{{ production?.reception?.xxj | percent }}</td>
+                      <td>{{ production?.reception?.xxxj | percent }}</td>
+                      <td>{{ production?.reception?.xxxjx | percent }}</td>
+                      <td>{{ production?.unitec?.exp | percent }}</td>
+                      <td>{{ production?.unitec?.l | percent }}</td>
+                      <td>{{ production?.unitec?.xl | percent }}</td>
+                      <td>{{ production?.unitec?.j | percent }}</td>
+                      <td>{{ production?.unitec?.xj | percent }}</td>
+                      <td>{{ production?.unitec?.xxj | percent }}</td>
+                      <td>{{ production?.unitec?.xxxj | percent }}</td>
+                      <td>{{ production?.unitec?.xxxjx | percent }}</td>
+                      <td>{{ production?.notification?.exp }}</td>
+                      <td>{{ production?.notification?.l }}</td>
+                      <td>{{ production?.notification?.xl }}</td>
+                      <td>{{ production?.notification?.j }}</td>
+                      <td>{{ production?.notification?.xj }}</td>
+                      <td>{{ production?.notification?.xxj }}</td>
+                      <td>{{ production?.notification?.xxxj }}</td>
+                      <td>{{ production?.notification?.xxxjx }}</td>
+                    </tr>
+                </ng-container>
+              </ng-container>              
+          </ng-template>
+        </p-table>
+    </div>
+    <br>
+    <hr>
+    <br>
+    <div class="comparison-section">
+        <h5 style="margin: 0px;">Diferencias</h5>
+        <p>Compara las diferencias con el visor de calibres.</p>
+        <br>
+        <div class="tables-container">
+          <!-- Tabla Calibre - Porcentaje -->
+          <div class="table-wrapper">
+            <div class="table-header">Calibre - Porcentaje</div>
+            <p-table [value]="percentageData" [responsiveLayout]="'scroll'">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th></th>
+                  <th pSortableColumn="satina" style="width:20%">
+                    SANTINA <p-sortIcon field="satina" />
+                  <th pSortableColumn="lapins" style="width:20%">
+                    LAPINS <p-sortIcon field="lapins" />  
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-data>
+                <tr>
+                  <td>{{ data?.size }}</td>
+                  <td [ngClass]="{'positive': data?.santina > data?.lapins, 'negative': data?.santina < data?.lapins}">{{ data?.santina }}%</td>
+                  <td [ngClass]="{'positive': data?.lapins > data?.santina , 'negative': data?.lapins < data?.santina }">{{ data?.lapins }}%</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+      
+          <!-- Tabla Calibre - Cajas -->
+          <div class="table-wrapper">
+            <div class="table-header">Calibre - Cajas</div>
+            <p-table [value]="boxData" [responsiveLayout]="'scroll'">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th></th>
+                  <th pSortableColumn="satina" style="width:20%">
+                    SANTINA <p-sortIcon field="satina" />
+                  <th pSortableColumn="lapins" style="width:20%">
+                    LAPINS <p-sortIcon field="lapins" />  
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-data>
+                <tr>
+                  <td>{{ data?.size }}</td>
+                  <td [ngClass]="{'negative': data?.santina < 0, 'positive': data?.satina > 0}">{{ data?.santina }}</td>
+                  <td [ngClass]="{'negative': data?.lapins < 0, 'positive': data?.lapins > 0}">{{ data?.lapins }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>      
+    <app-footer></app-footer>
+</div>

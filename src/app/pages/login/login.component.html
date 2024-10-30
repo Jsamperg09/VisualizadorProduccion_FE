@@ -1,5 +1,5 @@
 <div style="height: 100vh; margin-bottom: 10px;">
-    <nav class="navbar navbar-light bg-light">
+    <nav class="navbar navbar-light bg-light" style="background: white!important;">
         <div class="container">
           <a class="navbar-brand" href="#">
             <img src="assets/logo.png" alt="" width="150">
@@ -11,7 +11,7 @@
               <img src="assets/logo.png" alt="DDC Logo" class="logo" width="200"
                   height="90">
               <div style="text-align: start;">
-                  <h1><b>Ingresar al Visualizador de Producción</b></h1>
+                  <h6><b>Ingresar al Visualizador de Producción</b></h6>
                   <p style="font-size: small; color: grey;">Accede a tu cuenta con tus
                       credenciales.</p>
               </div>
@@ -23,9 +23,10 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="w-100">
                     <mat-label>Contraseña</mat-label>
-                    <input matInput formControlName="password" type="password"/>
+                    <input matInput name="password" [type]="hide ? 'password' : 'text'" formControlName="password">
+                    <mat-icon matSuffix (click)="hide = !hide">{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
                 </mat-form-field>
-                  <button mat-raised-button
+                  <button
                       class="full-width">Acceder</button>
               </form>
       
@@ -38,14 +39,6 @@
                   </div>
               </div>
           </div>
-      </div>  
-      <footer>
-        <button mat-flat-button>
-            <mat-icon color="white">help_outline</mat-icon>
-            Ayúda
-        </button>
-        <button mat-flat-button style="color: black;" class="text-body">
-            Terminos y Condiciones
-        </button>
-      </footer>
+      </div>
+      <app-footer></app-footer>
 </div>
