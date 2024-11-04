@@ -39,13 +39,13 @@ ul.breadcrumb li a:hover {
 }
 
 .welcome-section {
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding: 20px;
   color: white;
 }
 
 .principal-monitor {
-    margin-top: 100px;
+    margin-top: 30px;
+    padding: 30px;
 }
 
 .filter-bar {
@@ -102,6 +102,15 @@ ul.breadcrumb li a:hover {
         width: 100%;
         justify-content: center;
     }
+
+    .cards {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .card {
+        max-width: 100%;
+    }    
 }
 
 .headerTable {
@@ -119,7 +128,17 @@ ul.breadcrumb li a:hover {
     font-family: Arial, sans-serif;
     display: flex;
     justify-content: start;
+    align-items: center; /* Centra verticalmente el título con las tarjetas */
     padding: 20px;
+    gap: 20px; /* Añade espacio entre el título y las tarjetas */
+    flex-wrap: wrap; /* Permite que se ajuste en pantallas pequeñas */
+}
+
+.projection h5 {
+    font-size: 1.5em;
+    margin: 10px 0;
+    text-align: center; /* Centra el título en todas las pantallas */
+    white-space: nowrap;
 }
 
 .projection .container {
@@ -132,7 +151,8 @@ ul.breadcrumb li a:hover {
     display: flex;
     gap: 20px;
     flex-direction: row;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
+    justify-content: center; /* Centra las tarjetas en pantallas pequeñas */
 }
 
 .card {
@@ -142,7 +162,8 @@ ul.breadcrumb li a:hover {
     overflow: hidden;
     width: 100%;
     min-width: 300px;
-    max-height: 200px;    
+    max-height: 200px;
+    flex: 1 1 300px;
 }
 
 .card-header {
@@ -261,4 +282,12 @@ th, td {
 
 .typificationQuality{
     margin-top: 30px;
+}
+
+.dropdown-menu-end{
+    margin-top: 10px!important;
+}
+
+#navbarDropdown {
+    padding: 0px!important;
 }

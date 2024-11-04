@@ -1,0 +1,65 @@
+.unauth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(to right, #41b5e6, #2a3ebf);
+  color: #fff;
+  text-align: center;
+}
+
+.breadcrumb-container {
+  width: 100%;
+  background-color: #eee;
+  padding: 10px 0;
+}
+
+.breadcrumb-container ul.breadcrumb {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.unauth-title {
+  font-size: 2em;
+  margin-top: 30px;
+  color: #ffffff;
+}
+
+.unauth-message {
+  font-size: 1.2em;
+  margin: 20px 0;
+  max-width: 600px;
+}
+
+.btn-back-home {
+  background-color: #5bc0de;
+  color: white;
+  padding: 12px 25px;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-back-home:hover {
+  background-color: #4a9cc2;
+}
+
+@media (max-width: 768px) {
+  .unauth-title {
+    font-size: 1.5em;
+  }
+
+  .unauth-message {
+    font-size: 1em;
+  }
+
+  .btn-back-home {
+    padding: 10px 20px;
+  }
+}

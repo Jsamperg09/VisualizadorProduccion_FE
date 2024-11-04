@@ -5,6 +5,8 @@ export interface FilterTable {
 }
 
 export interface ProductionDataTable {
+  id? : number;
+  idProductionHistory? : number;  
   center?: string;
   line?: string;
   variety?: string;
@@ -19,13 +21,12 @@ export interface ProductionDataTable {
   typification?: string;
   batchProcess?: string;
   batch?: string;
-  reception?: Reception;
-  unitec?: Unitec;
-  notification?: Notification;
-  productions?: ProductionDataTable[]
+  reception?: Quality;
+  unitec?: Quality;
+  notification?: Quality;
 }
 
-interface Reception {
+interface Quality {
   exp?: number;
   l?: number;
   xl?: number;
@@ -33,27 +34,5 @@ interface Reception {
   xj?: number;
   xxj?: number;
   xxxj?: number;
-  xxxjx?: number;
-};
-
-interface Unitec {
-  exp?: number;
-  l?: number;
-  xl?: number;
-  j?: number;
-  xj?: number;
-  xxj?: number;
-  xxxj?: number;
-  xxxjx?: number;
-};
-
-interface Notification {
-  exp?: number;
-  l?: number;
-  xl?: number;
-  j?: number;
-  xj?: number;
-  xxj?: number;
-  xxxj?: number;
-  xxxjx?: number;
+  xxxxj?: number;
 };

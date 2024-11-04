@@ -1,6 +1,9 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { FilterTable, ProductionDataTable } from 'src/domain/productionDataTable';
-import { ProductorsService } from 'src/service/productorsService';
+import { UserLoginResponse } from 'src/interfaces/user/userLoginResponse';
+import { AuthService } from 'src/service/auth.service';
+import { ProductorsService } from 'src/service/productors.service';
+import { SpinnerService } from 'src/service/spinner.service';
 
 interface TableData {
   size: string;
@@ -41,6 +44,7 @@ export class HomeVisualizadorComponent {
   rows = 30;
 
   data: ProductionDataTable[] = [];
+  dataPersisted: ProductionDataTable[] = [];
   filters: FilterTable[] = [];
   
   centers: string[] = [];
@@ -52,17 +56,30 @@ export class HomeVisualizadorComponent {
   productors: string[] = [];
   productorFiltered: string = "";
   
-  constructor(private productorsService: ProductorsService) {}
+  user: UserLoginResponse;
+  canSeeHome: boolean = false;
+
+  constructor(
+    private productorsService: ProductorsService,
+    private authService: AuthService,
+    private spinnerService: SpinnerService
+  ) {
+    this.user = {
+      permissions: JSON.parse(localStorage.getItem('permissions')!) || [],
+      rol: localStorage.getItem('role')!,
+      token: localStorage.getItem('token')!,
+      nombre: localStorage.getItem('nombre')!
+    }
+  }
 
   ngOnInit() {
+    this.canSeeHome = this.user.permissions.some(permission => permission.name === 'Lectura-Home');
+
     this.productorsService.getProductors().then((res) => {
-      this.data = res;
+      this.data = this.dataPersisted = res;
     });
 
-    this.productorsService.getFilters().then((res) => {
-      this.filters = res;
-      this.centers = [...new Set(res.map(item => item.center))];
-    });    
+    this.getFilters();
   }
 
   get centerSelected() {
@@ -80,7 +97,6 @@ export class HomeVisualizadorComponent {
 
   set batchSelected(value) {
     this.batchFiltered = value;
-    this.productorSelected = "";
     this.filters = this.filters.filter(item => item.batchProcess === this.batchSelected);
   }
 
@@ -94,10 +110,39 @@ export class HomeVisualizadorComponent {
   }
 
   filterData() {
+    this.spinnerService.showSpinner();    
     this.data = this.data.filter(item => 
-      item.center === this.centerSelected && 
-      item.producerCode === this.productorSelected && 
-      item.batchProcess === this.batchSelected
-    )
+      (this.centerSelected === '' || item.center === this.centerSelected) &&
+      (this.productorSelected === '' || item.producerCode === this.productorSelected) &&
+      (this.batchSelected === '' || item.batchProcess === this.batchSelected)
+    );
+    setTimeout(() => {
+      this.spinnerService.hideSpinner();
+    }, 1500);        
+  }
+
+  resetFilter(){
+    this.spinnerService.showSpinner();
+    this.data = this.dataPersisted;
+    this.centerFiltered = this.batchFiltered = this.productorFiltered = '';
+    this.getFilters();
+    setTimeout(() => {
+      this.spinnerService.hideSpinner();
+    }, 1500);    
+  }
+
+  logOut() {
+    this.spinnerService.showSpinner();
+    this.authService.logout();
+    setTimeout(() => {
+      this.spinnerService.hideSpinner();
+    }, 1500);
+  }
+
+  private getFilters(){
+    this.productorsService.getFilters().then((res: FilterTable[]) => {
+      this.filters = res;
+      this.centers = [...new Set(res.map(item => item.center))];
+    });    
   }
 }

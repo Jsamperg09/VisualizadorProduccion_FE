@@ -1,54 +1,54 @@
-<div class="homePage">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light static-top"
-        style="background: white!important;">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/home">
-                <img src="assets/logo.png" alt width="150">
-            </a>
-            <button class="navbar-toggler" type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a mat-flat-button style="background: rgb(0 60 170);"
-                            href="https://klarsys.github.io/angular-material-icons/"
+<nav class="navbar navbar-expand-lg navbar-light bg-light static-top"
+style="background: white!important;">
+<div class="container-fluid">
+    <a class="navbar-brand" href="/home">
+        <img src="assets/logo.png" alt width="150">
+    </a>
+    <button class="navbar-toggler" type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false"
+        aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                <a mat-flat-button style="background: rgb(0 60 170);"
+                    href="https://klarsys.github.io/angular-material-icons/"
+                    target="_blank">
+                    <mat-icon
+                        color="white">filter_center_focus</mat-icon>
+                    Monitor
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+                <a mat-flat-button id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="justify-content: flex-start; background: white!important; color: black;">
+                    <img class="img-fluid rounded-circle shadow-2-strong" style="margin-right: 5px;" src="../../../assets/avatarLogo.jpg" width="35" height="20">
+                    {{user.rol}}
+                    <mat-icon color="white" iconPositionEnd>keyboard_arrow_down</mat-icon>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end"
+                    aria-labelledby="navbarDropdown">
+                    <li>
+                        <a class="dropdown-item" mat-flat-button style="justify-content: flex-start; background: white!important; color: black; font-weight: lighter;"
+                            (click)="logOut()"
                             target="_blank">
-                            <mat-icon
-                                color="white">filter_center_focus</mat-icon>
-                            Monitor
+                            <mat-icon style="color: rgb(226 101 100);">exit_to_app</mat-icon>
+                            Cerrar Sesión
                         </a>
                     </li>
                 </ul>
-            </div>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown">
-                        <a mat-flat-button id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="justify-content: flex-start; background: white!important; color: black;">
-                            <img class="img-fluid rounded-circle shadow-2-strong" style="margin-right: 5px;" src="https://dwpdigital.blog.gov.uk/wp-content/uploads/sites/197/2016/07/P1090594-1.jpeg" width="35" height="20">
-                            Usuario Rol
-                            <mat-icon color="white" iconPositionEnd>keyboard_arrow_down</mat-icon>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end"
-                            aria-labelledby="navbarDropdown">
-                            <li>
-                                <a class="dropdown-item" mat-flat-button style="justify-content: flex-start; background: white!important; color: black; font-weight: lighter;"
-                                    href="https://klarsys.github.io/angular-material-icons/"
-                                    target="_blank">
-                                    <mat-icon style="color: rgb(226 101 100);">exit_to_app</mat-icon>
-                                    Cerrar Sesión
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+            </li>
+        </ul>
+    </div>
+</div>
+</nav>
+<div class="homePage" *ngIf="canSeeHome">
     <div>
         <ul class="breadcrumb">
             <li style="color: rgb(129, 129, 129);">Inicio</li>
@@ -56,8 +56,8 @@
         </ul>
     </div>
     <div class="welcome-section">
-        <div class="container mt-1">
-            <h2>Bienvenido Usuario <br> al Monitor de Producción</h2>
+        <div class="container-fluid mt-1">
+            <h2>Bienvenido {{user.nombre}} <br> al Monitor de Producción</h2>
             <div class="filter-bar">
                 <label for="filter">Filtrar por</label>          
                 <select class="form-select" id="filter" name="Centro" [(ngModel)]="centerSelected">
@@ -83,58 +83,61 @@
                 <button class="btn btn-export">
                     <i class="bi bi-cloud-download"></i> Exportar
                 </button>
+                <button class="btn btn-export" style="color:rgb(226 101 100);" (click)="resetFilter()">
+                    <i class="bi bi-repeat" style="color:rgb(226 101 100);"></i> Reinciar
+                </button>
             </div>
         </div>
     </div>
-    <div class="container principal-monitor" style="background: #ffff;">
+    <div class="container-fluid principal-monitor">
         <br>
-        <h5>Monitor de Información</h5>
-        <p style="font-weight: lighter;">En este módulo podrás ver Información referente a lotes de producción.</p>
-        <p-table 
-            [value]="data" 
-            selectionMode="single" 
-            [(selection)]="selectedRow" 
-            [paginator]="true" 
-            [rows]="rows"
-            [first]="first"
-            [showCurrentPageReport]="true"
-            [rowsPerPageOptions]="[10, 20, 30, 50]"
-            currentPageReportTemplate="Mostrando {last} de {totalRecords} resultados"
-            [tableStyle]="{ 'min-width': '50rem' }">
-                <ng-template pTemplate="header" let-columns>
-                    <tr>
-                        <th class="headerTable custom-sort-icon" pSortableColumn="center" style="width:20%">
-                            Centro <p-sortIcon field="center" />
-                        <th class="headerTable custom-sort-icon" pSortableColumn="line" style="width:20%">
-                            Linea<p-sortIcon field="line" />
-                        <th class="headerTable custom-sort-icon" pSortableColumn="species" style="width:20%">
-                            Especie <p-sortIcon field="species" />
-                        <th class="headerTable custom-sort-icon" pSortableColumn="variety" style="width:20%">
-                            Variedad <p-sortIcon field="variety" />
-                        <th class="headerTable custom-sort-icon" pSortableColumn="variety-ET" style="width:20%">
-                            Variedad ET<p-sortIcon field="variety-ET" />
-                        <th class="headerTable custom-sort-icon" pSortableColumn="process-batch" style="width:20%">
-                            Lote de Proceso<p-sortIcon field="process-batch" /> 
-                        <th class="headerTable custom-sort-icon" pSortableColumn="batch" style="width:20%">
-                            Lote<p-sortIcon field="batch" />
-                        <th class="headerTable custom-sort-icon" pSortableColumn="um" style="width:20%">
-                            UM<p-sortIcon field="um" />
-                        <th class="headerTable custom-sort-icon" pSortableColumn="material" style="width:20%">
-                            Material<p-sortIcon field="material" />
-                        <th class="headerTable custom-sort-icon" pSortableColumn="producer-code" style="width:20%">
-                            Cod. Productor<p-sortIcon field="producer-code" /> 
-                        <th class="headerTable custom-sort-icon" pSortableColumn="labeled-producer" style="width:20%">
-                            Prod. Etiquetado<p-sortIcon field="labeled-producer" /> 
-                        <th class="headerTable custom-sort-icon" pSortableColumn="name" style="width:20%">
-                            Nombre<p-sortIcon field="name" /> 
-                        <th class="headerTable custom-sort-icon" pSortableColumn="typification" style="width:20%">
-                            Tipificación<p-sortIcon field="typification" /> 
-                        <th class="headerTable custom-sort-icon" pSortableColumn="quality" style="width:20%">
-                            Calidad<p-sortIcon field="quality" /> 
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-data>
-                    <ng-container *ngIf="data.productions?.length">
+        <div style="background: #ffff; padding: 20px;">
+            <h5>Monitor de Información</h5>
+            <p style="font-weight: lighter;">En este módulo podrás ver Información referente a lotes de producción.</p>
+            <p-table 
+                [value]="data" 
+                selectionMode="single" 
+                [(selection)]="selectedRow" 
+                [paginator]="true" 
+                [rows]="rows"
+                [first]="first"
+                [showCurrentPageReport]="true"
+                [rowsPerPageOptions]="[10, 20, 30, 50]"
+                currentPageReportTemplate="Mostrando {last} de {totalRecords} resultados"
+                [tableStyle]="{ 'min-width': '50rem' }">
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th class="headerTable custom-sort-icon" pSortableColumn="center" style="width:20%">
+                                Centro <p-sortIcon field="center" />
+                            <th class="headerTable custom-sort-icon" pSortableColumn="line" style="width:20%">
+                                Linea<p-sortIcon field="line" />
+                            <th class="headerTable custom-sort-icon" pSortableColumn="species" style="width:20%">
+                                Especie <p-sortIcon field="species" />
+                            <th class="headerTable custom-sort-icon" pSortableColumn="variety" style="width:20%">
+                                Variedad <p-sortIcon field="variety" />
+                            <th class="headerTable custom-sort-icon" pSortableColumn="variety-ET" style="width:20%">
+                                Variedad ET<p-sortIcon field="variety-ET" />
+                            <th class="headerTable custom-sort-icon" pSortableColumn="process-batch" style="width:20%">
+                                Lote de Proceso<p-sortIcon field="process-batch" /> 
+                            <th class="headerTable custom-sort-icon" pSortableColumn="batch" style="width:20%">
+                                Lote<p-sortIcon field="batch" />
+                            <th class="headerTable custom-sort-icon" pSortableColumn="um" style="width:20%">
+                                UM<p-sortIcon field="um" />
+                            <th class="headerTable custom-sort-icon" pSortableColumn="material" style="width:20%">
+                                Material<p-sortIcon field="material" />
+                            <th class="headerTable custom-sort-icon" pSortableColumn="producer-code" style="width:20%">
+                                Cod. Productor<p-sortIcon field="producer-code" /> 
+                            <th class="headerTable custom-sort-icon" pSortableColumn="labeled-producer" style="width:20%">
+                                Prod. Etiquetado<p-sortIcon field="labeled-producer" /> 
+                            <th class="headerTable custom-sort-icon" pSortableColumn="name" style="width:20%">
+                                Nombre<p-sortIcon field="name" /> 
+                            <th class="headerTable custom-sort-icon" pSortableColumn="typification" style="width:20%">
+                                Tipificación<p-sortIcon field="typification" /> 
+                            <th class="headerTable custom-sort-icon" pSortableColumn="quality" style="width:20%">
+                                Calidad<p-sortIcon field="quality" /> 
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-data>
                         <tr [pSelectableRow]="data">
                             <td>{{ data?.center }}</td>
                             <td>{{ data?.line }}</td>
@@ -151,34 +154,16 @@
                             <td>{{ data?.typification }}</td>
                             <td>{{ data?.quality }}</td>
                         </tr>
-                        <ng-container *ngFor="let production of data.productions">
-                            <tr [pSelectableRow]="production">
-                                <td>{{ production?.center }}</td>
-                                <td>{{ production?.line }}</td>
-                                <td>{{ production?.species }}</td>
-                                <td>{{ production?.variety }}</td>
-                                <td>{{ production?.varietyEt }}</td>
-                                <td>{{ production?.batchProcess }}</td>
-                                <td>{{ production?.batch }}</td>
-                                <td>{{ production?.um }}</td>
-                                <td>{{ production?.material }}</td>
-                                <td>{{ production?.producerCode }}</td>
-                                <td>{{ production?.labeledProducer }}</td>
-                                <td>{{ production?.name }}</td>
-                                <td>{{ production?.typification }}</td>
-                                <td>{{ production?.quality }}</td>
-                            </tr>
-                        </ng-container>
-                    </ng-container>
-                </ng-template>
-        </p-table>
+                    </ng-template>
+            </p-table>
+        </div>
     </div>
     <br>
     <hr>
     <br>
     <div class="container-fluid projection">
         <h5 style="margin-right: 10px;">Total y Proyección</h5>
-        <div class="cards" style="overflow-x: auto; padding-bottom: 10px;">
+        <div class="cards" style="padding-bottom: 10px;">
             <div class="card">
                 <div class="card-header">Kilos Procesados</div>
                 <div class="card-content">
@@ -314,39 +299,6 @@
               <td>{{ data?.notification?.xxxj }}</td>
               <td>{{ data?.notification?.xxxjx }}</td>            
             </tr>
-            <ng-container *ngIf="data.productions?.length">
-                <ng-container *ngFor="let production of data.productions">
-                    <tr [pSelectableRow]="production">
-                      <td>{{ production?.species }}</td>
-                      <td>{{ production?.typification }}</td>
-                      <td>{{ production?.batch }}</td>
-                      <td>{{ production?.reception?.exp | percent }}</td>
-                      <td>{{ production?.reception?.l | percent }}</td>
-                      <td>{{ production?.reception?.xl | percent }}</td>
-                      <td>{{ production?.reception?.j | percent }}</td>
-                      <td>{{ production?.reception?.xj | percent }}</td>
-                      <td>{{ production?.reception?.xxj | percent }}</td>
-                      <td>{{ production?.reception?.xxxj | percent }}</td>
-                      <td>{{ production?.reception?.xxxjx | percent }}</td>
-                      <td>{{ production?.unitec?.exp | percent }}</td>
-                      <td>{{ production?.unitec?.l | percent }}</td>
-                      <td>{{ production?.unitec?.xl | percent }}</td>
-                      <td>{{ production?.unitec?.j | percent }}</td>
-                      <td>{{ production?.unitec?.xj | percent }}</td>
-                      <td>{{ production?.unitec?.xxj | percent }}</td>
-                      <td>{{ production?.unitec?.xxxj | percent }}</td>
-                      <td>{{ production?.unitec?.xxxjx | percent }}</td>
-                      <td>{{ production?.notification?.exp }}</td>
-                      <td>{{ production?.notification?.l }}</td>
-                      <td>{{ production?.notification?.xl }}</td>
-                      <td>{{ production?.notification?.j }}</td>
-                      <td>{{ production?.notification?.xj }}</td>
-                      <td>{{ production?.notification?.xxj }}</td>
-                      <td>{{ production?.notification?.xxxj }}</td>
-                      <td>{{ production?.notification?.xxxjx }}</td>
-                    </tr>
-                </ng-container>
-              </ng-container>              
           </ng-template>
         </p-table>
     </div>
@@ -407,3 +359,9 @@
       </div>      
     <app-footer></app-footer>
 </div>
+
+<div *ngIf="!canSeeHome">
+    <app-unauthorized/>
+</div>
+
+<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#033baa" type = "ball-beat" [fullScreen] = "true"></ngx-spinner>
