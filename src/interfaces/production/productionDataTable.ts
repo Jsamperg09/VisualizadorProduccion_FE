@@ -21,12 +21,15 @@ export interface ProductionDataTable {
   typification?: string;
   batchProcess?: string;
   batch?: string;
-  reception?: Quality;
-  unitec?: Quality;
-  notification?: Quality;
+  reception?: Quality[];
+  unitec?: Quality[];
+  notification?: Quality[];
+  difference?: Quality[];
+  notificationDifference?: Quality[];
+  productionCalculate?: ProductionCalculate[]
 }
 
-interface Quality {
+export interface Quality {
   exp?: number;
   l?: number;
   xl?: number;
@@ -36,3 +39,20 @@ interface Quality {
   xxxj?: number;
   xxxxj?: number;
 };
+
+export interface VarietyWithQualities {
+  variety: string;
+  color: string;
+  reception: Quality[];
+  unitec: Quality[];
+  notification: Quality[];
+  difference: Quality[];
+  notificationDifference: Quality[];
+  productionCalculate: ProductionCalculate[];
+}
+
+export interface ProductionCalculate {
+  boxProjectionQuality?: number;
+  processedKilo?: number;
+  unitecBoxesProjection?: number;
+}

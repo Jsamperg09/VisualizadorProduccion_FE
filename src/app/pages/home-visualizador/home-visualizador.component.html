@@ -166,48 +166,45 @@ style="background: white!important;">
         <div class="cards" style="padding-bottom: 10px;">
             <div class="card">
                 <div class="card-header">Kilos Procesados</div>
-                <div class="card-content">
-                    <div class="item">
-                        <span class="indicator santina"></span>
-                        <span class="label">SANTINA</span>
-                        <span class="value">10.104 Kg</span>
-                    </div>
-                    <div class="item">
-                        <span class="indicator lapins"></span>
-                        <span class="label">LAPINS</span>
-                        <span class="value">11.355 Kg</span>
+                <div class="card-content" style="overflow-y: auto">
+                    <div *ngFor="let item of varietyWithQualities">
+                      <div *ngFor="let itemCalculate of item.productionCalculate; index as i" class="item-calculate">
+                        <div class="item">
+                          <span class="indicator" [style.background-color]="item.color"></span>
+                          <span class="label">{{ item.variety }}</span>
+                          <span class="value">{{ itemCalculate.processedKilo | number }} Kg</span>
+                        </div>
+                      </div>
                     </div>
                 </div>
             </div>
     
             <div class="card">
                 <div class="card-header">Proyección de Cajas Unitec</div>
-                <div class="card-content">
-                    <div class="item">
-                        <span class="indicator santina"></span>
-                        <span class="label">SANTINA</span>
-                        <span class="value">1.109 Cajas</span>
-                    </div>
-                    <div class="item">
-                        <span class="indicator lapins"></span>
-                        <span class="label">LAPINS</span>
-                        <span class="value">1.657 Cajas</span>
+                <div class="card-content" style="overflow-y: auto">
+                    <div *ngFor="let item of varietyWithQualities">
+                      <div *ngFor="let itemCalculate of item.productionCalculate; index as i" class="item-calculate">
+                        <div class="item">
+                          <span class="indicator" [style.background-color]="item.color"></span>
+                          <span class="label">{{ item.variety }}</span>
+                          <span class="value">{{ itemCalculate.unitecBoxesProjection | number }} Cajas</span>
+                        </div>
+                      </div>
                     </div>
                 </div>
             </div>
     
             <div class="card">
                 <div class="card-header">Proyección de Cajas Calidad</div>
-                <div class="card-content">
-                    <div class="item">
-                        <span class="indicator santina"></span>
-                        <span class="label">SANTINA</span>
-                        <span class="value">1.657 Cajas</span>
-                    </div>
-                    <div class="item">
-                        <span class="indicator lapins"></span>
-                        <span class="label">LAPINS</span>
-                        <span class="value">1.657 Cajas</span>
+                <div class="card-content" style="overflow-y: auto">
+                    <div *ngFor="let item of varietyWithQualities">
+                      <div *ngFor="let itemCalculate of item.productionCalculate; index as i" class="item-calculate">
+                        <div class="item">
+                          <span class="indicator" [style.background-color]="item.color"></span>
+                          <span class="label">{{ item.variety }}</span>
+                          <span class="value">{{ itemCalculate.boxProjectionQuality | number }} Cajas</span>
+                        </div>
+                      </div>
                     </div>
                 </div>
             </div>
@@ -258,7 +255,6 @@ style="background: white!important;">
               <th class="headerTable">XXJ</th>
               <th class="headerTable">XXXJ</th>
               <th class="headerTable">XXXXJ</th>
-              <th class="headerTable">% EXP</th>
               <th class="headerTable">L</th>
               <th class="headerTable">XL</th>
               <th class="headerTable">J</th>
@@ -274,30 +270,35 @@ style="background: white!important;">
               <td>{{ data?.species }}</td>
               <td>{{ data?.typification }}</td>
               <td>{{ data?.batch }}</td>
-              <td>{{ data?.reception?.exp | percent }}</td>
-              <td>{{ data?.reception?.l | percent }}</td>
-              <td>{{ data?.reception?.xl | percent }}</td>
-              <td>{{ data?.reception?.j | percent }}</td>
-              <td>{{ data?.reception?.xj | percent }}</td>
-              <td>{{ data?.reception?.xxj | percent }}</td>
-              <td>{{ data?.reception?.xxxj | percent }}</td>
-              <td>{{ data?.reception?.xxxjx | percent }}</td>
-              <td>{{ data?.unitec?.exp | percent }}</td>
-              <td>{{ data?.unitec?.l | percent }}</td>
-              <td>{{ data?.unitec?.xl | percent }}</td>
-              <td>{{ data?.unitec?.j | percent }}</td>
-              <td>{{ data?.unitec?.xj | percent }}</td>
-              <td>{{ data?.unitec?.xxj | percent }}</td>
-              <td>{{ data?.unitec?.xxxj | percent }}</td>
-              <td>{{ data?.unitec?.xxxjx | percent }}</td>
-              <td>{{ data?.notification?.exp }}</td>
-              <td>{{ data?.notification?.l }}</td>
-              <td>{{ data?.notification?.xl }}</td>
-              <td>{{ data?.notification?.j }}</td>
-              <td>{{ data?.notification?.xj }}</td>
-              <td>{{ data?.notification?.xxj }}</td>
-              <td>{{ data?.notification?.xxxj }}</td>
-              <td>{{ data?.notification?.xxxjx }}</td>            
+              @for (item of data?.reception; track $index) {
+                <td>{{ item.exp | percent:'1.2-2' }}</td>
+                <td>{{ item.l | percent:'1.2-2' }}</td>
+                <td>{{ item.xl | percent:'1.2-2' }}</td>
+                <td>{{ item.j | percent:'1.2-2' }}</td>
+                <td>{{ item.xj | percent:'1.2-2' }}</td>
+                <td>{{ item.xxj | percent:'1.2-2' }}</td>
+                <td>{{ item.xxxj | percent:'1.2-2' }}</td>
+                <td>{{ item.xxxxj | percent:'1.2-2' }}</td>
+              }
+              @for (item of data?.unitec; track $index) {
+                <td>{{ item.exp | percent:'1.2-2' }}</td>
+                <td>{{ item.l | percent:'1.2-2' }}</td>
+                <td>{{ item.xl | percent:'1.2-2' }}</td>
+                <td>{{ item.j | percent:'1.2-2' }}</td>
+                <td>{{ item.xj | percent:'1.2-2' }}</td>
+                <td>{{ item.xxj | percent:'1.2-2' }}</td>
+                <td>{{ item.xxxj | percent:'1.2-2' }}</td>
+                <td>{{ item.xxxxj | percent:'1.2-2' }}</td>
+              }
+              @for (item of data?.notification; track $index) {
+                <td>{{ item.l | number }}</td>
+                <td>{{ item.xl | number }}</td>
+                <td>{{ item.j | number }}</td>
+                <td>{{ item.xj | number }}</td>
+                <td>{{ item.xxj | number }}</td>
+                <td>{{ item.xxxj | number }}</td>
+                <td>{{ item.xxxxj | number }}</td>
+              }
             </tr>
           </ng-template>
         </p-table>
@@ -310,49 +311,53 @@ style="background: white!important;">
         <p>Compara las diferencias con el visor de calibres.</p>
         <br>
         <div class="tables-container">
-          <!-- Tabla Calibre - Porcentaje -->
           <div class="table-wrapper">
             <div class="table-header">Calibre - Porcentaje</div>
             <p-table [value]="percentageData" [responsiveLayout]="'scroll'">
-              <ng-template pTemplate="header">
-                <tr>
-                  <th></th>
-                  <th pSortableColumn="satina" style="width:20%">
-                    SANTINA <p-sortIcon field="satina" />
-                  <th pSortableColumn="lapins" style="width:20%">
-                    LAPINS <p-sortIcon field="lapins" />  
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-data>
-                <tr>
-                  <td>{{ data?.size }}</td>
-                  <td [ngClass]="{'positive': data?.santina > data?.lapins, 'negative': data?.santina < data?.lapins}">{{ data?.santina }}%</td>
-                  <td [ngClass]="{'positive': data?.lapins > data?.santina , 'negative': data?.lapins < data?.santina }">{{ data?.lapins }}%</td>
-                </tr>
-              </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th></th>
+                        <th *ngFor="let variety of varietyWithQualities" pSortableColumn="{{ variety.variety }}" style="width:20%">
+                        {{ variety.variety }} <p-sortIcon field="{{ variety.variety }}" />
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-data>
+                    <tr>
+                        <td>{{ data?.size }}</td>
+                        <td *ngFor="let variety of varietyWithQualities" [ngClass]="{
+                            'positive': data[variety.variety] > 0,
+                            'negative': data[variety.variety] < 0
+                        }">
+                        {{ data[variety.variety] | percent:'1.2-2' }}
+                        </td>
+                    </tr>
+                </ng-template>
             </p-table>
           </div>
       
-          <!-- Tabla Calibre - Cajas -->
           <div class="table-wrapper">
             <div class="table-header">Calibre - Cajas</div>
             <p-table [value]="boxData" [responsiveLayout]="'scroll'">
-              <ng-template pTemplate="header">
-                <tr>
-                  <th></th>
-                  <th pSortableColumn="satina" style="width:20%">
-                    SANTINA <p-sortIcon field="satina" />
-                  <th pSortableColumn="lapins" style="width:20%">
-                    LAPINS <p-sortIcon field="lapins" />  
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-data>
-                <tr>
-                  <td>{{ data?.size }}</td>
-                  <td [ngClass]="{'negative': data?.santina < 0, 'positive': data?.satina > 0}">{{ data?.santina }}</td>
-                  <td [ngClass]="{'negative': data?.lapins < 0, 'positive': data?.lapins > 0}">{{ data?.lapins }}</td>
-                </tr>
-              </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th></th>
+                        <th *ngFor="let variety of varietyWithQualities" pSortableColumn="{{ variety.variety }}" style="width:20%">
+                        {{ variety.variety }} <p-sortIcon field="{{ variety.variety }}" />
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-data>
+                    <tr>
+                        <td>{{ data?.size }}</td>
+                        <td *ngFor="let variety of varietyWithQualities" [ngClass]="{
+                            'positive': data[variety.variety] > 0,
+                            'negative': data[variety.variety] < 0
+                        }">
+                        {{ data[variety.variety] }}
+                        </td>
+                    </tr>
+                </ng-template>
             </p-table>
           </div>
         </div>

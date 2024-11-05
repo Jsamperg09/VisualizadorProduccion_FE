@@ -1,14 +1,14 @@
+import { HttpStatusCode } from '@angular/common/http';
 import { Component, ViewEncapsulation } from '@angular/core';
-import { FilterTable, ProductionDataTable } from 'src/domain/productionDataTable';
+import { FilterTable, ProductionCalculate, ProductionDataTable, Quality, VarietyWithQualities } from 'src/interfaces/production/productionDataTable';
 import { UserLoginResponse } from 'src/interfaces/user/userLoginResponse';
 import { AuthService } from 'src/service/auth.service';
 import { ProductorsService } from 'src/service/productors.service';
 import { SpinnerService } from 'src/service/spinner.service';
 
-interface TableData {
+interface DifferencesData {
   size: string;
-  santina: number;
-  lapins: number;
+  [varietyName: string]: number | string | null;
 }
 
 @Component({
@@ -18,46 +18,24 @@ interface TableData {
   encapsulation: ViewEncapsulation.None,
 })
 export class HomeVisualizadorComponent {
-  percentageData: TableData[] = [
-    { size: '% Exp', santina: 40, lapins: 20 },
-    { size: 'L', santina: 19, lapins: 40 },
-    { size: 'XL', santina: 50, lapins: 60 },
-    { size: 'J', santina: 40, lapins: 10 },
-    { size: 'XJ', santina: 50, lapins: 70 },
-    { size: 'XXJ', santina: 70, lapins: 10 },
-    { size: 'XXXJ', santina: 50, lapins: 60 },
-    { size: 'XXXXJ', santina: 10, lapins: 80 }
-  ];
-
-  boxData: TableData[] = [
-    { size: 'L', santina: -100, lapins: -1000 },
-    { size: 'XL', santina: -90, lapins: -1330 },
-    { size: 'J', santina: -357, lapins: -4000 },
-    { size: 'XJ', santina: -700, lapins: -1000 },
-    { size: 'XXJ', santina: -5543, lapins: -5786 },
-    { size: 'XXXJ', santina: -1564, lapins: -1350 },
-    { size: 'XXXXJ', santina: -350, lapins: -1540 }
-  ];
-
+  sizes: (keyof Quality)[] = ['exp', 'l', 'xl', 'j', 'xj', 'xxj', 'xxxj', 'xxxxj'];
+  percentageData: DifferencesData[] = [];
+  boxData: DifferencesData[] = [];
   selectedRow: ProductionDataTable | null = null;
   first = 0;
   rows = 30;
-
   data: ProductionDataTable[] = [];
   dataPersisted: ProductionDataTable[] = [];
   filters: FilterTable[] = [];
-  
   centers: string[] = [];
   centerFiltered: string = "";
-
   batchs: string[] = [];
   batchFiltered: string = "";
-
   productors: string[] = [];
   productorFiltered: string = "";
-  
   user: UserLoginResponse;
   canSeeHome: boolean = false;
+  varietyWithQualities: VarietyWithQualities[] = [];
 
   constructor(
     private productorsService: ProductorsService,
@@ -75,11 +53,25 @@ export class HomeVisualizadorComponent {
   ngOnInit() {
     this.canSeeHome = this.user.permissions.some(permission => permission.name === 'Lectura-Home');
 
-    this.productorsService.getProductors().then((res) => {
-      this.data = this.dataPersisted = res;
-    });
-
-    this.getFilters();
+    this.productorsService.getProductorsData().subscribe({
+      next: (res) => {
+        if (res.codigo == HttpStatusCode.Ok){          
+          this.data = this.dataPersisted = Array.isArray(res.data) ? res.data.map(item => {            
+            item.productionCalculate = convertKeysToCamelCase(JSON.parse(item.productionCalculate)) as ProductionCalculate[];
+            item.notificationDifference = convertKeysToCamelCase(JSON.parse(item.notificationDifference)) as Quality[];
+            item.difference = convertKeysToCamelCase(JSON.parse(item.difference)) as Quality[];
+            item.unitec = convertKeysToCamelCase(JSON.parse(item.unitec)) as Quality[];
+            item.reception = convertKeysToCamelCase(JSON.parse(item.reception)) as Quality[];
+            item.notification = convertKeysToCamelCase(JSON.parse(item.notification)) as Quality[];
+            return item;
+          }) : [];
+          this.getFilters();
+        }
+      },
+      error: () => {
+        this.data = this.dataPersisted = [];
+      }
+    });    
   }
 
   get centerSelected() {
@@ -140,9 +132,112 @@ export class HomeVisualizadorComponent {
   }
 
   private getFilters(){
-    this.productorsService.getFilters().then((res: FilterTable[]) => {
-      this.filters = res;
-      this.centers = [...new Set(res.map(item => item.center))];
+    this.productorsService.getFilters(this.data).then((res: FilterTable[]) => {
+      if (res){
+        this.filters = res;
+        this.centers = [...new Set(res.map(item => item.center))];
+        this.generateProyection();
+        this.generateDifferenceData();        
+      }
+    });
+  }
+
+  private generateProyection() {
+    const varietyMap = new Map<string, VarietyWithQualities>();
+
+    this.data.forEach(item => {
+      if (!item.variety) return;
+
+      if (!varietyMap.has(item.variety)) {
+        varietyMap.set(item.variety, {
+          variety: item.variety,
+          difference: [],
+          notification: [],
+          notificationDifference: [],
+          reception: [],
+          unitec: [],
+          productionCalculate: [],
+          color: getRandomColor()
+        });
+      }
+
+      const varietyData = varietyMap.get(item.variety)!;
+      if (item.reception) varietyData.reception.push(item.reception[0]);
+      if (item.unitec) varietyData.unitec.push(item.unitec[0]);
+      if (item.notification) varietyData.notification.push(item.notification[0]);
+      if (item.difference) varietyData.difference.push(item.difference[0]);
+      if (item.notificationDifference) varietyData.notificationDifference.push(item.notificationDifference[0]);
+      if (item.productionCalculate) varietyData.productionCalculate.push(item.productionCalculate[0]);
+    });
+
+    this.varietyWithQualities = Array.from(varietyMap.values());
+  }
+
+  private generateDifferenceData() {
+    this.percentageData = this.sizes.map(size => {
+      const row: DifferencesData = { size: this.formatSize(size) };
+
+      this.varietyWithQualities.forEach(variety => {        
+        row[variety.variety] = this.getQualityValue(variety.variety, size, 'difference') ?? '0';
+      });
+
+      return row;
+    });
+
+    this.boxData = this.sizes.filter(size => size != 'exp').map(size => {
+      const row: DifferencesData = { size: this.formatSize(size) };
+      
+      this.varietyWithQualities.forEach(variety => {
+        row[variety.variety] = this.getQualityValue(variety.variety, size, 'notificationDifference') ?? '0';
+      });
+
+      return row;
     });    
   }
+  
+  private formatSize(size: string): string {
+    return size.toUpperCase().replace('EXP', '% Exp');
+  }
+
+  private getQualityValue(
+    variety: string, 
+    size: keyof Quality, 
+    property: 'difference' | 'unitec' | 'notification' | 'notificationDifference' | 'reception'
+  ): number | null {
+    const varietyData = this.varietyWithQualities.find(v => v.variety === variety);
+    if (varietyData && varietyData[property]) {
+      for (const quality of varietyData[property]!) {
+        if (quality[size] !== undefined) {
+          return quality[size]!;
+        }
+      }
+    }
+    return null;
+  }
+}
+
+function getRandomColor(): string {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+} 
+
+function toCamelCase(key: string): string {
+  return key.charAt(0).toLowerCase() + key.slice(1);
+}
+
+function convertKeysToCamelCase(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map(item => convertKeysToCamelCase(item));
+  } else if (obj !== null && obj.constructor === Object) {
+    return Object.keys(obj).reduce((acc, key) => {
+      const camelKey = toCamelCase(key);
+      acc[camelKey] = convertKeysToCamelCase(obj[key]);
+      return acc;
+    }, {} as any);
+  }
+  return obj;
 }
