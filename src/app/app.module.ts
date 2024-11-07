@@ -25,7 +25,13 @@ import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { LoadingInterceptorService } from './pages/shared/loading/loading.interceptor';
 import { UnauthorizedComponent } from './pages/shared/unauthorized/unauthorized.component';
-
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { AdminUsersComponent } from './pages/admin-users/admin-users.component';
+import { NavbarComponent } from './pages/shared/navbar/navbar.component';
+import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
+import { ButtonModule } from 'primeng/button';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],  
@@ -35,7 +41,9 @@ import { UnauthorizedComponent } from './pages/shared/unauthorized/unauthorized.
     HomeVisualizadorComponent,
     RecoverAccessComponent,
     FooterComponent,
-    UnauthorizedComponent
+    UnauthorizedComponent,
+    AdminUsersComponent,
+    NavbarComponent    
   ],
   imports: [
     BrowserModule,
@@ -56,12 +64,17 @@ import { UnauthorizedComponent } from './pages/shared/unauthorized/unauthorized.
     FormsModule, 
     CommonModule,
     HttpClientModule,
-    NgxSpinnerModule
+    NgxSpinnerModule,
+    ToastModule,
+    DialogModule,
+    DropdownModule,
+    ButtonModule
   ],
   providers: [
     {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}},
     { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptorService, multi: true },
-    ProductorsService
+    ProductorsService,
+    MessageService
   ],
   bootstrap: [AppComponent]
 })

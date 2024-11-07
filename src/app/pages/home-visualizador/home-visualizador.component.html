@@ -1,53 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light static-top"
-style="background: white!important;">
-<div class="container-fluid">
-    <a class="navbar-brand" href="/home">
-        <img src="assets/logo.png" alt width="150">
-    </a>
-    <button class="navbar-toggler" type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false"
-        aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-                <a mat-flat-button style="background: rgb(0 60 170);"
-                    href="https://klarsys.github.io/angular-material-icons/"
-                    target="_blank">
-                    <mat-icon
-                        color="white">filter_center_focus</mat-icon>
-                    Monitor
-                </a>
-            </li>
-        </ul>
-    </div>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ms-auto">
-            <li class="nav-item dropdown">
-                <a mat-flat-button id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="justify-content: flex-start; background: white!important; color: black;">
-                    <img class="img-fluid rounded-circle shadow-2-strong" style="margin-right: 5px;" src="../../../assets/avatarLogo.jpg" width="35" height="20">
-                    {{user.rol}}
-                    <mat-icon color="white" iconPositionEnd>keyboard_arrow_down</mat-icon>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end"
-                    aria-labelledby="navbarDropdown">
-                    <li>
-                        <a class="dropdown-item" mat-flat-button style="justify-content: flex-start; background: white!important; color: black; font-weight: lighter;"
-                            (click)="logOut()"
-                            target="_blank">
-                            <mat-icon style="color: rgb(226 101 100);">exit_to_app</mat-icon>
-                            Cerrar Sesión
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-    </div>
-</div>
-</nav>
+<app-navbar></app-navbar>
 <div class="homePage" *ngIf="canSeeHome">
     <div>
         <ul class="breadcrumb">
@@ -80,7 +31,7 @@ style="background: white!important;">
                 <button class="btn btn-search" (click)="filterData()">
                     <i class="bi bi-search"></i> Buscar
                 </button>
-                <button class="btn btn-export">
+                <button class="btn btn-export" (click)="exportData()">
                     <i class="bi bi-cloud-download"></i> Exportar
                 </button>
                 <button class="btn btn-export" style="color:rgb(226 101 100);" (click)="resetFilter()">
@@ -99,12 +50,13 @@ style="background: white!important;">
                 selectionMode="single" 
                 [(selection)]="selectedRow" 
                 [paginator]="true" 
+                [scrollable]="true" 
                 [rows]="rows"
                 [first]="first"
                 [showCurrentPageReport]="true"
                 [rowsPerPageOptions]="[10, 20, 30, 50]"
                 currentPageReportTemplate="Mostrando {last} de {totalRecords} resultados"
-                [tableStyle]="{ 'min-width': '50rem' }">
+                [tableStyle]="{ 'min-width': '50rem', 'max-heigh': '600px' }">
                     <ng-template pTemplate="header" let-columns>
                         <tr>
                             <th class="headerTable custom-sort-icon" pSortableColumn="center" style="width:20%">
@@ -361,7 +313,8 @@ style="background: white!important;">
             </p-table>
           </div>
         </div>
-      </div>      
+    </div>
+    <p-toast></p-toast>
     <app-footer></app-footer>
 </div>
 

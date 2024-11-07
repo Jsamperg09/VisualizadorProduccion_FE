@@ -1,0 +1,11 @@
+#navbarDropdown {
+    padding: 0px!important;
+}
+
+.dropdown-menu-end{
+    margin-top: 10px!important;
+}
+
+.mdc-button__label{
+    padding: 20px!important;
+}

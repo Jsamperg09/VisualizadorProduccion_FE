@@ -27,18 +27,20 @@ export class AuthService {
         localStorage.setItem('permissions', JSON.stringify(response.data.permissions));
         localStorage.setItem('role', response.data.rol);
         localStorage.setItem('nombre', response.data.nombre);
+        localStorage.setItem('email', response.data.email);
         this.authStatus.next(true);
         this.router.navigateByUrl(returnUrl);
       })
     );
   }
 
-  logout(): void {
+  logout(pathReturn = '/login'): void {
     localStorage.removeItem('token');
     localStorage.removeItem('permissions');
     localStorage.removeItem('role');
     localStorage.removeItem('nombre');
+    localStorage.removeItem('email');
     this.authStatus.next(false);
-    this.router.navigate(['/login']);
+    this.router.navigate([pathReturn]);
   }
 }

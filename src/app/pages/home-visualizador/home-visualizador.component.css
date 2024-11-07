@@ -277,17 +277,25 @@ th, td {
 }
 
 .p-dropdown-items.ng-star-inserted {
-    padding: 0%;
+    padding-left: 0%;
 }
 
 .typificationQuality{
     margin-top: 30px;
 }
 
-.dropdown-menu-end{
-    margin-top: 10px!important;
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0px;
 }
 
-#navbarDropdown {
-    padding: 0px!important;
+.p-datatable-wrapper{
+    max-height: 600px!important;
+}
+
+@media screen and (max-width: 64em) {
+    :host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+        top: 0px;
+    }
 }

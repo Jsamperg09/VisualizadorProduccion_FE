@@ -1,11 +1,10 @@
+import { HttpStatusCode } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { UserLogin } from 'src/interfaces/user/userLogin';
 import { AuthService } from 'src/service/auth.service';
-import { SpinnerService } from 'src/service/spinner.service';
-import { UserService } from 'src/service/user.service';
+import { ToastService } from 'src/service/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -22,7 +21,7 @@ export class LoginComponent implements OnInit {
     private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
-    private spinnerService: SpinnerService
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -42,10 +41,16 @@ export class LoginComponent implements OnInit {
         correo: formData.email,
         contrasena: formData.password
       };
-
+      
       this.authService.login(userLogin).subscribe({
-          next: () => this.router.navigate([this.returnUrl]),
-          error: (error) => console.error('Login error', error),
+          next: (res) =>{
+            if (res.codigo == HttpStatusCode.Ok){          
+              this.router.navigate([this.returnUrl])
+            }else{
+              this.toastService.showToast('error', 'Ocurrió un error', res.mensaje);
+            }            
+          },
+          error: (error) => this.toastService.showToast('error', 'Ocurrió un error', error.error.mensaje),
         }
       );
     }

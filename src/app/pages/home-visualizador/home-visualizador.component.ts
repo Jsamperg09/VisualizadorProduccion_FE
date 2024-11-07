@@ -3,8 +3,10 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { FilterTable, ProductionCalculate, ProductionDataTable, Quality, VarietyWithQualities } from 'src/interfaces/production/productionDataTable';
 import { UserLoginResponse } from 'src/interfaces/user/userLoginResponse';
 import { AuthService } from 'src/service/auth.service';
+import { ExcelExportService } from 'src/service/excel-export.service';
 import { ProductorsService } from 'src/service/productors.service';
 import { SpinnerService } from 'src/service/spinner.service';
+import { ToastService } from 'src/service/toast.service';
 
 interface DifferencesData {
   size: string;
@@ -18,6 +20,7 @@ interface DifferencesData {
   encapsulation: ViewEncapsulation.None,
 })
 export class HomeVisualizadorComponent {
+  headers: string[] = ['Centro', 'Linea', 'Especie', 'Variedad', 'Variedad Et', 'Lote proceso', 'Lote', 'UM', 'Material', 'Cod Productor', 'Prod.Etiquetado', 'Nombre', 'Tipificación', 'Calidad', 'Kilos Procesados', 'Proyeccion de cajas Calidad', 'Tipificación', 'Calidad', '% Exp', 'L', 'XL', 'J', 'XJ', 'XXJ', 'XXXJ', 'XXXXJ', '% Exp', 'L', 'XL', 'J', 'XJ', 'XXJ', 'XXXJ', 'XXXXJ', '% Exp', 'L', 'XL', 'J', 'XJ', 'XXJ', 'XXXJ', 'XXXXJ', 'L', 'XL', 'J', 'XJ', 'XXJ', 'XXXJ', 'XXXXJ', 'L', 'XL', 'J', 'XJ', 'XXJ', 'XXXJ', 'XXXXJ']
   sizes: (keyof Quality)[] = ['exp', 'l', 'xl', 'j', 'xj', 'xxj', 'xxxj', 'xxxxj'];
   percentageData: DifferencesData[] = [];
   boxData: DifferencesData[] = [];
@@ -35,12 +38,15 @@ export class HomeVisualizadorComponent {
   productorFiltered: string = "";
   user: UserLoginResponse;
   canSeeHome: boolean = false;
+  isAdmin: boolean = false;
   varietyWithQualities: VarietyWithQualities[] = [];
 
   constructor(
     private productorsService: ProductorsService,
     private authService: AuthService,
-    private spinnerService: SpinnerService
+    private spinnerService: SpinnerService,
+    private excelExportService: ExcelExportService,
+    private toastService: ToastService
   ) {
     this.user = {
       permissions: JSON.parse(localStorage.getItem('permissions')!) || [],
@@ -51,7 +57,11 @@ export class HomeVisualizadorComponent {
   }
 
   ngOnInit() {
-    this.canSeeHome = this.user.permissions.some(permission => permission.name === 'Lectura-Home');
+    this.isAdmin = this.user.permissions.some(permission => permission.name === 'Lectura-Home');
+    if (!this.isAdmin)
+      this.canSeeHome = this.user.permissions.some(permission => permission.name === 'Lectura-Home');
+    else
+      this.canSeeHome = true;
 
     this.productorsService.getProductorsData().subscribe({
       next: (res) => {
@@ -66,12 +76,24 @@ export class HomeVisualizadorComponent {
             return item;
           }) : [];
           this.getFilters();
+        } else if (res.codigo == HttpStatusCode.Unauthorized){
+          this.toastService.showToast('error', 'Token no válido', 'Su token de seguridad expiró, por favor vuelva a ingresar.');
+          this.logOut();
+        }else{
+          this.toastService.showToast('error', 'Ocurrió un error', res.mensaje);
         }
       },
-      error: () => {
+      error: (res) => {
+        if (res.codigo == HttpStatusCode.Unauthorized){
+          this.toastService.showToast('error', 'Token no válido', 'Su token de seguridad expiró, por favor vuelva a ingresar.');
+          this.logOut();
+        }else{
+          this.toastService.showToast('error', 'Ocurrió un error', undefined);
+        }
+        
         this.data = this.dataPersisted = [];
       }
-    });    
+    });
   }
 
   get centerSelected() {
@@ -108,6 +130,8 @@ export class HomeVisualizadorComponent {
       (this.productorSelected === '' || item.producerCode === this.productorSelected) &&
       (this.batchSelected === '' || item.batchProcess === this.batchSelected)
     );
+    this.generateProyection();
+    this.generateDifferenceData();    
     setTimeout(() => {
       this.spinnerService.hideSpinner();
     }, 1500);        
@@ -131,20 +155,34 @@ export class HomeVisualizadorComponent {
     }, 1500);
   }
 
+  exportData(){
+    if (this.data.length > 0){
+      let fileName = `VisualizadorProduccion_${Date.now()}`
+      this.spinnerService.showSpinner();
+      this.excelExportService.exportToExcel(this.data, `${fileName}`, this.headers)
+      setTimeout(() => {
+        this.spinnerService.hideSpinner();
+        this.toastService.showToast(undefined, 'Descarga exitosa', `Archivo excel ${fileName} descargado correctamente.`);
+      }, 1000);
+    }else{
+      this.toastService.showToast('info', 'No hay datos para exportar', undefined);
+    }
+  }
+
   private getFilters(){
     this.productorsService.getFilters(this.data).then((res: FilterTable[]) => {
       if (res){
         this.filters = res;
-        this.centers = [...new Set(res.map(item => item.center))];
-        this.generateProyection();
-        this.generateDifferenceData();        
+        this.centers = [...new Set(res.map(item => item.center))];     
       }
     });
+
+    this.generateProyection();
+    this.generateDifferenceData();
   }
 
   private generateProyection() {
     const varietyMap = new Map<string, VarietyWithQualities>();
-
     this.data.forEach(item => {
       if (!item.variety) return;
 

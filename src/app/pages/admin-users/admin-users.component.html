@@ -1,0 +1,172 @@
+<app-navbar></app-navbar>
+<div class="adminPage">
+    <div>
+        <ul class="breadcrumb">
+            <li style="color: rgb(129, 129, 129);">Inicio</li>
+            <li><a href="/home">Visualizador de Producción</a></li>
+            <li>Administración de Usuarios</li>
+        </ul>
+    </div>
+    <div class="welcome-section" *ngIf="isAdmin">
+        <div class="container-fluid mt-1">
+            <h2>Administración de usuarios y roles</h2>
+            <div class="filter-bar">
+                <label for="filter">Filtrar por</label>          
+                <select class="form-select" id="filter">
+                    <option hidden value="" disabled selected>Nombre</option>
+                    <option [ngValue]="nombre" *ngFor="let nombre of nombres">{{nombre}}</option>
+                </select>
+                <select class="form-select">
+                    <option hidden value="" disabled selected>Email</option>
+                    <!-- @for (filter of filters; track filter) {
+                        <option [value]="filter.producerCode">{{filter.producerCode}}</option>
+                    } -->
+                </select>
+                <select class="form-select">
+                    <option hidden value="" disabled selected>Rol</option>
+                    <!-- @for (filter of filters; track filter) {
+                        <option [value]="filter.batchProcess">{{filter.batchProcess}}</option>
+                    } -->
+                </select>
+                <input type="text" class="form-control" placeholder="Buscar por palabra...">
+                <button class="btn btn-search" (click)="null">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+                <button class="btn btn-export" (click)="null">
+                    <i class="bi bi-cloud-download"></i> Exportar
+                </button>
+                <button class="btn btn-export" style="color:rgb(226 101 100);" (click)="null">
+                    <i class="bi bi-repeat" style="color:rgb(226 101 100);"></i> Reinciar
+                </button>
+                <button class="btn btn-export" (click)="createUser()">
+                    <i class="bi bi-plus"></i> Añadir
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid principal-monitor">
+        <br>
+        <div style="background: #ffff; padding: 20px;">
+            <h5>Todos los usuarios</h5>
+            <p style="font-weight: lighter;">En este módulo podrás ver Información referente a los usuarios registrados en el sistema.</p>
+            <p-table 
+                [value]="users" 
+                selectionMode="single" 
+                [(selection)]="selectedRow" 
+                [paginator]="true" 
+                [scrollable]="true" 
+                [rows]="rows"
+                [first]="first"
+                [showCurrentPageReport]="true"
+                [rowsPerPageOptions]="[10, 20, 30]"
+                currentPageReportTemplate="Mostrando {last} de {totalRecords} resultados"
+                [tableStyle]="{ 'min-width': '50rem', 'max-height': '600px' }">
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th class="headerTable custom-sort-icon" pSortableColumn="nombre" style="width:30%">
+                                Nombre completo <p-sortIcon field="nombre" />
+                            <th class="headerTable custom-sort-icon" pSortableColumn="correo" style="width:20%">
+                                Dirección email<p-sortIcon field="correo" />
+                            <th class="headerTable custom-sort-icon" pSortableColumn="rut" style="width:20%">
+                                RUT <p-sortIcon field="rut" />
+                            <th class="headerTable custom-sort-icon" pSortableColumn="rol" style="width:20%">
+                                Rol <p-sortIcon field="rol" />
+                            <th class="headerTable" style="width:20%">
+                                Acciones
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-data>
+                        <tr [pSelectableRow]="data">
+                            <td>{{ data?.nombre }} {{ data?.apellido }}</td>
+                            <td>{{ data?.correo }}</td>
+                            <td>{{ data?.rut }}</td>
+                            <td>{{ data?.tipoUsuario }}</td>
+                            <td style="gap: 5px;">
+                                <div style="text-align: center;">
+                                    <button class="btn" style="background: #e8eef7; color: #013da5; padding: 5px; margin: 3px;" (click)="editUser(data)">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn" style="background: #fae6e6; color: #e26564; padding: 5px; margin: 3px;" (click)="deleteUserById(data.id)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                        </tr>
+                    </ng-template>
+            </p-table>
+        </div>
+    </div>    
+</div>
+<p-toast></p-toast>
+<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#033baa" type = "ball-beat" [fullScreen] = "true"></ngx-spinner>
+<div *ngIf="!isAdmin">
+    <app-unauthorized [pathReturn]='"/home"'/>
+</div>
+
+
+<div class="card flex justify-content-center">
+    <p-dialog 
+        header="Nuevo Usuario" 
+        [(visible)]="visible" 
+        [modal]="true" 
+        [style]="{ width: '35rem' }">
+        
+        <ng-template pTemplate="header">
+            <div class="inline-flex align-items-center justify-content-center gap-2">
+                <h5 class="font-bold white-space-nowrap">
+                    {{ tituloModal }}
+                </h5>
+            </div>
+        </ng-template>
+        
+        <p class="p-text-secondary block" *ngIf="tituloModal === 'Nuevo Usuario'" style="margin-bottom: 20px;margin-top: 20px;">Ingrese la información del nuevo usuario.</p>
+        <p class="p-text-secondary block" *ngIf="tituloModal != 'Nuevo Usuario'" style="margin-bottom: 20px;margin-top: 20px;">Actualice la información del usuario.</p>
+        
+        <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="form-container">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="nombre" class="form-label">Nombre Completo</label>
+                    <input type="text" class="form-control" id="nombre" formControlName="nombre" [(ngModel)]="usuario.nombre" placeholder="Ingresa el nombre del usuario">
+                </div>
+                <div class="col-md-4">
+                    <label for="apellido" class="form-label">Apellido Completo</label>
+                    <input type="text" class="form-control" id="apellido" formControlName="apellido" [(ngModel)]="usuario.apellido" placeholder="Ingresa el apellido del usuario">
+                </div>
+                <div class="col-md-4">
+                    <label for="email" class="form-label">E-mail</label>
+                    <input type="email" class="form-control" id="email" formControlName="email" [(ngModel)]="usuario.email" placeholder="Ingresa la dirección de correo electrónico">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="idTipoUsuario" class="form-label">Tipo de Perfil</label>
+                    <select class="form-select" id="idTipoUsuario" formControlName="idTipoUsuario" [(ngModel)]="usuario.idTipoUsuario">
+                        <option value="1">Administrador</option>
+                        <option value="2">Visualizador</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="rut" class="form-label">RUT</label>
+                    <input type="text" class="form-control" id="rut" formControlName="rut" [(ngModel)]="usuario.rut" placeholder="Ingresa el RUT del usuario">
+                </div>
+            </div> 
+        </form>
+        
+        <ng-template pTemplate="footer">
+            <p-button 
+                label="Cancelar" 
+                [text]="true" 
+                severity="secondary" 
+                (onClick)="onCancel()" />
+            <p-button *ngIf="tituloModal === 'Nuevo Usuario'"
+                label="Crear" 
+                [outlined]="true" 
+                severity="primary" 
+                (onClick)="onSubmit()" />
+            <p-button *ngIf="tituloModal === 'Editar Usuario'"
+                label="Editar" 
+                [outlined]="true" 
+                severity="primary" 
+                (onClick)="onUpdate(this.usuario.id!)" />
+        </ng-template>
+    </p-dialog>
+</div>
