@@ -4,15 +4,23 @@ import { ProductionDataTable } from 'src/interfaces/production/productionDataTab
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
 import { ResponseApi } from 'src/interfaces/api/responseApi';
+import { AesService } from './aes.service';
+import { InterceptorSkipHeader } from 'src/app/pages/shared/loading/loading.interceptor';
     
 @Injectable({ providedIn: 'root' })
 export class ProductorsService {
 
-   constructor(private http: HttpClient){}
+   constructor(private http: HttpClient, private encryptService: AesService){}
 
-    getProductorsData(): Observable<ResponseApi> {
-      let auth = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('token')}`);
-      return this.http.get<ResponseApi>(environment.apiUrl+'/Productor', {headers: auth});
+   getProductorsData(isFromWorker: boolean = false): Observable<ResponseApi> {
+      let headers = new HttpHeaders()
+        .set('Authorization', `Bearer ${JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).token}`);
+    
+      if (isFromWorker) {
+        headers = headers.set(InterceptorSkipHeader, '');
+      }
+      
+      return this.http.get<ResponseApi>(environment.apiUrl + '/Productor', { headers });
     }
 
     getFilters(data: ProductionDataTable[]): any {

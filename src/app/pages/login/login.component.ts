@@ -43,7 +43,7 @@ export class LoginComponent implements OnInit {
       };
       
       this.authService.login(userLogin).subscribe({
-          next: (res) =>{
+          next: (res) =>{            
             if (res.codigo == HttpStatusCode.Ok){          
               this.router.navigate([this.returnUrl])
             }else{

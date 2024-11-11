@@ -3,6 +3,10 @@ export interface UserLoginResponse {
     token: string
     rol: string
     nombre: string
+    apellido: string,
+    rut: string,
+    id?: number
+    idTipoUsuario: string,
     permissions: Permission[]
   }
   

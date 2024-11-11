@@ -12,30 +12,26 @@
             <h2>Administración de usuarios y roles</h2>
             <div class="filter-bar">
                 <label for="filter">Filtrar por</label>          
-                <select class="form-select" id="filter">
+                <select class="form-select" id="filter" [(ngModel)]="nameSelected">
                     <option hidden value="" disabled selected>Nombre</option>
-                    <option [ngValue]="nombre" *ngFor="let nombre of nombres">{{nombre}}</option>
+                    <option [ngValue]="name" *ngFor="let name of names">{{name}}</option>
                 </select>
-                <select class="form-select">
+                <select class="form-select" [(ngModel)]="emailSelected">
                     <option hidden value="" disabled selected>Email</option>
-                    <!-- @for (filter of filters; track filter) {
-                        <option [value]="filter.producerCode">{{filter.producerCode}}</option>
-                    } -->
+                    <option *ngFor="let email of emails" [ngValue]="email">{{email}}</option>                    
                 </select>
-                <select class="form-select">
+                <select class="form-select" [(ngModel)]="roleSelected">
                     <option hidden value="" disabled selected>Rol</option>
-                    <!-- @for (filter of filters; track filter) {
-                        <option [value]="filter.batchProcess">{{filter.batchProcess}}</option>
-                    } -->
+                    <option *ngFor="let rol of roles" [ngValue]="rol">{{rol}}</option>
                 </select>
-                <input type="text" class="form-control" placeholder="Buscar por palabra...">
-                <button class="btn btn-search" (click)="null">
+                <input type="text" class="form-control" placeholder="Buscar por palabra..." [(ngModel)]="searchData">
+                <button class="btn btn-search" (click)="filterData()">
                     <i class="bi bi-search"></i> Buscar
                 </button>
                 <button class="btn btn-export" (click)="null">
                     <i class="bi bi-cloud-download"></i> Exportar
                 </button>
-                <button class="btn btn-export" style="color:rgb(226 101 100);" (click)="null">
+                <button class="btn btn-export" style="color:rgb(226 101 100);" (click)="resetFilter()">
                     <i class="bi bi-repeat" style="color:rgb(226 101 100);"></i> Reinciar
                 </button>
                 <button class="btn btn-export" (click)="createUser()">
@@ -126,14 +122,29 @@
                 <div class="col-md-4">
                     <label for="nombre" class="form-label">Nombre Completo</label>
                     <input type="text" class="form-control" id="nombre" formControlName="nombre" [(ngModel)]="usuario.nombre" placeholder="Ingresa el nombre del usuario">
+                    <div *ngIf="userForm.get('nombre')!.touched && userForm.get('nombre')!.invalid" class="text-danger">
+                        <p *ngIf="userForm.get('nombre')!.hasError('required')">
+                          Campo requerido.
+                        </p>
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <label for="apellido" class="form-label">Apellido Completo</label>
                     <input type="text" class="form-control" id="apellido" formControlName="apellido" [(ngModel)]="usuario.apellido" placeholder="Ingresa el apellido del usuario">
+                    <div *ngIf="userForm.get('apellido')!.touched && userForm.get('apellido')!.invalid" class="text-danger">
+                        <p *ngIf="userForm.get('apellido')!.hasError('required')">
+                          Campo requerido.
+                        </p>
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <label for="email" class="form-label">E-mail</label>
                     <input type="email" class="form-control" id="email" formControlName="email" [(ngModel)]="usuario.email" placeholder="Ingresa la dirección de correo electrónico">
+                    <div *ngIf="userForm.get('email')!.touched && userForm.get('email')!.invalid" class="text-danger">
+                        <p *ngIf="userForm.get('email')!.hasError('required')">
+                          Campo requerido.
+                        </p>
+                    </div>
                 </div>
             </div>
             <div class="row mb-3">
@@ -143,10 +154,20 @@
                         <option value="1">Administrador</option>
                         <option value="2">Visualizador</option>
                     </select>
+                    <div *ngIf="userForm.get('idTipoUsuario')!.touched && userForm.get('idTipoUsuario')!.invalid" class="text-danger">
+                        <p *ngIf="userForm.get('idTipoUsuario')!.hasError('required')">
+                          Campo requerido.
+                        </p>
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <label for="rut" class="form-label">RUT</label>
                     <input type="text" class="form-control" id="rut" formControlName="rut" [(ngModel)]="usuario.rut" placeholder="Ingresa el RUT del usuario">
+                    <div *ngIf="userForm.get('rut')!.touched && userForm.get('rut')!.invalid" class="text-danger">
+                        <p *ngIf="userForm.get('rut')!.hasError('required')">
+                          Campo requerido.
+                        </p>
+                    </div>
                 </div>
             </div> 
         </form>

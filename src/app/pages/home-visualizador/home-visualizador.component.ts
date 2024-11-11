@@ -2,6 +2,7 @@ import { HttpStatusCode } from '@angular/common/http';
 import { Component, ViewEncapsulation } from '@angular/core';
 import { FilterTable, ProductionCalculate, ProductionDataTable, Quality, VarietyWithQualities } from 'src/interfaces/production/productionDataTable';
 import { UserLoginResponse } from 'src/interfaces/user/userLoginResponse';
+import { AesService } from 'src/service/aes.service';
 import { AuthService } from 'src/service/auth.service';
 import { ExcelExportService } from 'src/service/excel-export.service';
 import { ProductorsService } from 'src/service/productors.service';
@@ -32,6 +33,7 @@ export class HomeVisualizadorComponent {
   filters: FilterTable[] = [];
   centers: string[] = [];
   centerFiltered: string = "";
+  searchData: string = "";
   batchs: string[] = [];
   batchFiltered: string = "";
   productors: string[] = [];
@@ -40,60 +42,48 @@ export class HomeVisualizadorComponent {
   canSeeHome: boolean = false;
   isAdmin: boolean = false;
   varietyWithQualities: VarietyWithQualities[] = [];
+  private worker: Worker | undefined;
 
   constructor(
     private productorsService: ProductorsService,
     private authService: AuthService,
     private spinnerService: SpinnerService,
     private excelExportService: ExcelExportService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private encryptService: AesService
   ) {
     this.user = {
-      permissions: JSON.parse(localStorage.getItem('permissions')!) || [],
-      rol: localStorage.getItem('role')!,
-      token: localStorage.getItem('token')!,
-      nombre: localStorage.getItem('nombre')!
+      permissions: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).permissions || [],
+      rol: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).rol,
+      token: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).token,
+      nombre: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).nombre,
+      email: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).email,
+      apellido: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).apellido,
+      rut: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).rut,
+      idTipoUsuario: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).idTipoUsuario
     }
   }
 
   ngOnInit() {
-    this.isAdmin = this.user.permissions.some(permission => permission.name === 'Lectura-Home');
+    this.isAdmin = this.user.permissions.some(permission => permission.name === 'Lectura-Administrador');
     if (!this.isAdmin)
       this.canSeeHome = this.user.permissions.some(permission => permission.name === 'Lectura-Home');
     else
       this.canSeeHome = true;
 
-    this.productorsService.getProductorsData().subscribe({
-      next: (res) => {
-        if (res.codigo == HttpStatusCode.Ok){          
-          this.data = this.dataPersisted = Array.isArray(res.data) ? res.data.map(item => {            
-            item.productionCalculate = convertKeysToCamelCase(JSON.parse(item.productionCalculate)) as ProductionCalculate[];
-            item.notificationDifference = convertKeysToCamelCase(JSON.parse(item.notificationDifference)) as Quality[];
-            item.difference = convertKeysToCamelCase(JSON.parse(item.difference)) as Quality[];
-            item.unitec = convertKeysToCamelCase(JSON.parse(item.unitec)) as Quality[];
-            item.reception = convertKeysToCamelCase(JSON.parse(item.reception)) as Quality[];
-            item.notification = convertKeysToCamelCase(JSON.parse(item.notification)) as Quality[];
-            return item;
-          }) : [];
-          this.getFilters();
-        } else if (res.codigo == HttpStatusCode.Unauthorized){
-          this.toastService.showToast('error', 'Token no válido', 'Su token de seguridad expiró, por favor vuelva a ingresar.');
-          this.logOut();
-        }else{
-          this.toastService.showToast('error', 'Ocurrió un error', res.mensaje);
+    this.fetchData();
+
+    if (typeof Worker !== 'undefined') {
+      this.worker = new Worker(new URL('./fetch-data.worker.ts', import.meta.url));
+      this.worker.onmessage = ({ data }) => {
+        if (data === 'fetchData' && this.centerSelected === '' && this.batchSelected === '' && this.productorSelected === '') {
+          this.fetchData(true);
         }
-      },
-      error: (res) => {
-        if (res.codigo == HttpStatusCode.Unauthorized){
-          this.toastService.showToast('error', 'Token no válido', 'Su token de seguridad expiró, por favor vuelva a ingresar.');
-          this.logOut();
-        }else{
-          this.toastService.showToast('error', 'Ocurrió un error', undefined);
-        }
-        
-        this.data = this.dataPersisted = [];
-      }
-    });
+      };
+      this.worker.postMessage('start');
+    } else {
+      console.warn('Web Workers are not supported in this environment.');
+    }
   }
 
   get centerSelected() {
@@ -103,6 +93,7 @@ export class HomeVisualizadorComponent {
   set centerSelected(value) {
     this.centerFiltered = value;
     this.filters = this.filters.filter(item => item.center === this.centerSelected);
+    this.generateFilterByData(this.filters);
   }
 
   get batchSelected() {
@@ -112,6 +103,7 @@ export class HomeVisualizadorComponent {
   set batchSelected(value) {
     this.batchFiltered = value;
     this.filters = this.filters.filter(item => item.batchProcess === this.batchSelected);
+    this.generateFilterByData(this.filters);
   }
 
   get productorSelected() {
@@ -121,6 +113,11 @@ export class HomeVisualizadorComponent {
   set productorSelected(value) {
     this.productorFiltered = value;
     this.filters = this.filters.filter(item => item.producerCode === this.productorSelected);
+    this.generateFilterByData(this.filters);
+  }
+
+  trackByUniqueKey(index: number, item: FilterTable): string {
+    return `${index}-${item.center}-${item.batchProcess}-${item.producerCode}`;
   }
 
   filterData() {
@@ -128,6 +125,7 @@ export class HomeVisualizadorComponent {
     this.data = this.data.filter(item => 
       (this.centerSelected === '' || item.center === this.centerSelected) &&
       (this.productorSelected === '' || item.producerCode === this.productorSelected) &&
+      (this.searchData === '' || item.batchProcess?.includes(this.searchData)) &&
       (this.batchSelected === '' || item.batchProcess === this.batchSelected)
     );
     this.generateProyection();
@@ -169,16 +167,77 @@ export class HomeVisualizadorComponent {
     }
   }
 
+  private fetchData(isFromWorker: boolean = false){
+    this.productorsService.getProductorsData(isFromWorker).subscribe({
+      next: (res) => {
+        if (res.codigo == HttpStatusCode.Ok){
+          res.data = convertKeysToCamelCase(JSON.parse(this.encryptService.decrypt(res.data)))
+          this.data = this.dataPersisted = Array.isArray(res.data) ? res.data.map(item => {            
+            item.productionCalculate = convertKeysToCamelCase(JSON.parse(item.productionCalculate)) as ProductionCalculate[];
+            item.notificationDifference = convertKeysToCamelCase(JSON.parse(item.notificationDifference)) as Quality[];
+            item.difference = convertKeysToCamelCase(JSON.parse(item.difference)) as Quality[];
+            item.unitec = convertKeysToCamelCase(JSON.parse(item.unitec)) as Quality[];
+            item.reception = convertKeysToCamelCase(JSON.parse(item.reception)) as Quality[];
+            item.notification = convertKeysToCamelCase(JSON.parse(item.notification)) as Quality[];
+            return item;
+          }) : [];
+          this.getFilters();
+        } else if (res.codigo == HttpStatusCode.Unauthorized){
+          this.toastService.showToast('error', 'Token no válido', 'Su token de seguridad expiró, por favor vuelva a ingresar.');
+          this.logOut();
+        }else{
+          this.toastService.showToast('error', 'Ocurrió un error', res.mensaje);
+        }
+      },
+      error: (res) => {
+        if (res.status == HttpStatusCode.Unauthorized){
+          this.toastService.showToast('error', 'Token no válido', 'Su token de seguridad expiró, por favor vuelva a ingresar.');
+          this.logOut();
+        }else{
+          this.toastService.showToast('error', 'Ocurrió un error', undefined);
+        }
+        
+        this.data = this.dataPersisted = [];
+      }
+    });    
+  }
+
   private getFilters(){
     this.productorsService.getFilters(this.data).then((res: FilterTable[]) => {
       if (res){
         this.filters = res;
-        this.centers = [...new Set(res.map(item => item.center))];     
+        this.generateFilterByData(res);
       }
     });
 
     this.generateProyection();
     this.generateDifferenceData();
+  }
+
+  private generateFilterByData(res: FilterTable[]){
+    if (this.centerFiltered == ''){
+      this.centers = Array.from(new Set(
+        res
+          .map(item => item.center?.trim())
+          .filter(center => center)
+      ));
+    }
+
+    if (this.productorFiltered == ''){
+      this.productors = Array.from(new Set(
+        res
+          .map(item => item.producerCode?.trim())
+          .filter(producerCode => producerCode)
+      ));
+    } 
+    
+    if (this.batchFiltered == ''){
+      this.batchs = Array.from(new Set(
+        res
+          .map(item => item.batchProcess?.trim())
+          .filter(batch => batch)
+      ));
+    }
   }
 
   private generateProyection() {

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserLoginResponse } from 'src/interfaces/user/userLoginResponse';
+import { AesService } from 'src/service/aes.service';
 import { AuthService } from 'src/service/auth.service';
 import { SpinnerService } from 'src/service/spinner.service';
 
@@ -18,13 +19,18 @@ export class NavbarComponent {
   constructor(
     private authService: AuthService,
     private spinnerService: SpinnerService,
-    private route: Router
+    private route: Router,
+    private encryptService: AesService
   ) {
     this.user = {
-      permissions: JSON.parse(localStorage.getItem('permissions')!) || [],
-      rol: localStorage.getItem('role')!,
-      token: localStorage.getItem('token')!,
-      nombre: localStorage.getItem('nombre')!
+      permissions: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).permissions || [],
+      rol: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).rol,
+      token: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).token,
+      nombre: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).nombre,
+      email: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).email,
+      apellido: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).apellido,
+      rut: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).rut,
+      idTipoUsuario: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).idTipoUsuario
     }
   }
 
@@ -44,5 +50,4 @@ export class NavbarComponent {
       this.spinnerService.hideSpinner();
     }, 1500);
   }
-
 }

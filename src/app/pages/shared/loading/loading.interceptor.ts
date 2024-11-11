@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { finalize, Observable } from 'rxjs';
 import { SpinnerService } from 'src/service/spinner.service';
 
+export const InterceptorSkipHeader = 'X-Skip-Interceptor';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -11,11 +13,24 @@ export class LoadingInterceptorService implements HttpInterceptor {
   constructor(private spinnerService: SpinnerService){}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    this.spinnerService.showSpinner();
+    const skipInterceptor = req.headers.has(InterceptorSkipHeader);
+    
+    let modifiedReq = req;
 
-    return next.handle(req).pipe(
-      finalize(() => { this.spinnerService.hideSpinner(); })
-    );    
+    if (skipInterceptor) {
+      const headers = req.headers.delete(InterceptorSkipHeader);
+      modifiedReq = req.clone({ headers });
+    } else {
+      this.spinnerService.showSpinner();
+    }
+
+    return next.handle(modifiedReq).pipe(
+      finalize(() => {
+        if (!skipInterceptor) {
+          this.spinnerService.hideSpinner();
+        }
+      })
+    );
   }
 };
  

@@ -32,6 +32,7 @@ import { NavbarComponent } from './pages/shared/navbar/navbar.component';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
+import { EditProfileComponent } from './pages/edit-profile/edit-profile.component';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],  
@@ -43,7 +44,8 @@ import { ButtonModule } from 'primeng/button';
     FooterComponent,
     UnauthorizedComponent,
     AdminUsersComponent,
-    NavbarComponent    
+    NavbarComponent,
+    EditProfileComponent
   ],
   imports: [
     BrowserModule,

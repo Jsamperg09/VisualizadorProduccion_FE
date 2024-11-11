@@ -1,0 +1,153 @@
+<app-navbar></app-navbar>
+
+<div class="editProfilePage">
+    <div>
+        <ul class="breadcrumb">
+            <li style="color: rgb(129, 129, 129);">Inicio</li>
+            <li><a href="/home">Visualizador de Producción</a></li>
+            <li>Administración Perfil</li>
+        </ul>
+    </div>
+    
+    <div class="welcome-section">
+        <div class="container-fluid mt-1">
+            <h2>Administración del Perfil</h2>
+        </div>
+    </div>
+
+    <div class="container-fluid principal-monitor">
+        <div class="section-card" style="background: #ffff; padding: 20px; margin-top: 20px;">
+            <h5>Mi perfil</h5>
+            <p style="font-weight: lighter;">En este módulo podrás ver información referente a tu perfil.</p>
+
+            <div class="card p-4 mb-4">
+                <h5 class="section-title" style="color: #013da5;">Datos personales</h5>
+                
+                <form [formGroup]="userForm" (ngSubmit)="null" class="form-container">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="nombre" class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" id="nombre" formControlName="nombre" [(ngModel)]="user.nombre" placeholder="Ingresa el nombre del usuario">
+                            <div *ngIf="userForm.get('nombre')!.touched && userForm.get('nombre')!.invalid" class="text-danger">
+                                <p *ngIf="userForm.get('nombre')!.hasError('required')">
+                                  Nombre requerido.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="apellido" class="form-label">Apellido Completo</label>
+                            <input type="text" class="form-control" id="apellido" formControlName="apellido" [(ngModel)]="user.apellido" placeholder="Ingresa el apellido del usuario">
+                            <div *ngIf="userForm.get('apellido')!.touched && userForm.get('apellido')!.invalid" class="text-danger">
+                                <p *ngIf="userForm.get('apellido')!.hasError('required')">
+                                  Apellido requerido.
+                                </p>
+                            </div>                            
+                        </div>
+                        <div class="col-md-4">
+                            <label for="email" class="form-label">E-mail</label>
+                            <input type="email" class="form-control" id="email" formControlName="email" [(ngModel)]="user.email" placeholder="Ingresa la dirección de correo electrónico">
+                            <div *ngIf="userForm.get('email')!.touched && userForm.get('email')!.invalid" class="text-danger">
+                                <p *ngIf="userForm.get('email')!.hasError('required')">
+                                  Correo requerido.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="idTipoUsuario" class="form-label">Tipo de Perfil</label>
+                            <select class="form-select" id="idTipoUsuario" formControlName="idTipoUsuario" [(ngModel)]="user.idTipoUsuario">
+                                <option value="1">Administrador</option>
+                                <option value="2">Visualizador</option>
+                            </select>
+                            <div *ngIf="userForm.get('idTipoUsuario')!.touched && userForm.get('idTipoUsuario')!.invalid" class="text-danger">
+                                <p *ngIf="userForm.get('idTipoUsuario')!.hasError('required')">
+                                  Tipo Usuario requerido.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="rut" class="form-label">RUT</label>
+                            <input type="text" class="form-control" id="rut" formControlName="rut" [(ngModel)]="user.rut" placeholder="Ingresa el RUT del usuario">
+                            <div *ngIf="userForm.get('rut')!.touched && userForm.get('rut')!.invalid" class="text-danger">
+                                <p *ngIf="userForm.get('rut')!.hasError('required')">
+                                  RUT requerido.
+                                </p>
+                            </div>
+                        </div>
+                    </div>                     
+                    <div class="d-flex justify-content-end gap-3">
+                        <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">Cancelar</button>
+                        <button type="button" class="btn btn-primary" (click)="editUser()">Editar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card p-4">
+                <h5 class="section-title" style="color: #013da5;">Modificación de credenciales</h5>
+
+                <form [formGroup]="passwordForm" (ngSubmit)="null">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="currentPassword" class="form-label">Contraseña Actual</label>
+                            <input type="password" class="form-control" id="currentPassword" formControlName="currentPassword" placeholder="************">
+                            <div *ngIf="passwordForm.get('currentPassword')!.touched && passwordForm.get('currentPassword')!.invalid" class="text-danger">
+                                <p *ngIf="passwordForm.get('currentPassword')!.hasError('required')">
+                                  Contraseña requerida.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="newPassword" class="form-label">Nueva contraseña</label>
+                            <input type="password" class="form-control" id="newPassword" formControlName="newPassword" placeholder="Ingresa una nueva contraseña">
+                            <div *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.invalid" class="text-danger">
+                                <p *ngIf="passwordForm.get('newPassword')?.hasError('required')">
+                                  Contraseña requerida.
+                                </p>
+                                <div *ngIf="passwordForm.get('newPassword')?.errors?.['passwordStrength']">
+                                  <p *ngIf="!passwordForm.get('newPassword')?.errors?.['passwordStrength']?.hasUpperCase">
+                                    La contraseña debería tener al menos un caracter en mayuscula.
+                                  </p>
+                                  <p *ngIf="!passwordForm.get('newPassword')?.errors?.['passwordStrength']?.hasNumber">
+                                    La contraseña debería tener al menos un número.
+                                  </p>
+                                  <p *ngIf="!passwordForm.get('newPassword')?.errors?.['passwordStrength']?.hasSpecialChar">
+                                    La contraseña debería tener al menos un caracter especial ($!%*?&).
+                                  </p>
+                                  <p *ngIf="!passwordForm.get('newPassword')?.errors?.['passwordStrength']?.isValidLength">
+                                    La contraseña debería tener mínimo 8 letras
+                                  </p>
+                                </div>
+                            </div>                              
+                        </div>
+                        <div class="col-md-4">
+                            <label for="confirmPassword" class="form-label">Confirma nueva contraseña</label>
+                            <input type="password" class="form-control" id="confirmPassword" formControlName="confirmPassword" placeholder="Confirma tu contraseña">
+                            <div *ngIf="passwordForm.get('confirmPassword')!.touched && passwordForm.get('confirmPassword')!.invalid" class="text-danger">
+                                <p *ngIf="passwordForm.get('confirmPassword')!.hasError('required')">
+                                  Contraseña requerida.
+                                </p>
+                                <p *ngIf="passwordForm.get('newPassword')!.valid && passwordForm.get('confirmPassword')!.dirty && passwordForm.get('confirmPassword')!.value !== passwordForm.get('newPassword')!.value">
+                                  Las contraseñas no coinciden.
+                                </p>                                
+                            </div>
+                            <div *ngIf="passwordForm.get('confirmPassword')!.dirty && passwordForm.get('confirmPassword')!.value !== passwordForm.get('newPassword')!.value" class="text-danger">
+                                <p>
+                                  Las contraseñas no coinciden.
+                                </p>
+                            </div>                            
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary" (click)="editPasswordUser()">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<app-footer></app-footer>
+<p-toast></p-toast>
+<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#033baa" type = "ball-beat" [fullScreen] = "true"></ngx-spinner>

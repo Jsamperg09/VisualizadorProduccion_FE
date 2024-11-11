@@ -10,7 +10,6 @@ export class ExcelExportService {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Data');
 
-    // const headers = Object.keys(data[0]).filter(head => !head.includes('id'));
     worksheet.addRow(headers);
 
     data.forEach((item) => {

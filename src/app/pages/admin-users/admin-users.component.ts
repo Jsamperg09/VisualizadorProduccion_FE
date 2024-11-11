@@ -1,8 +1,9 @@
 import { HttpStatusCode } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { FilterTable, UserCreateData, UserData } from 'src/interfaces/user/userData';
+import { FilterTableUser, UserCreateData, UserData } from 'src/interfaces/user/userData';
 import { UserLoginResponse } from 'src/interfaces/user/userLoginResponse';
+import { AesService } from 'src/service/aes.service';
 import { AuthService } from 'src/service/auth.service';
 import { ExcelExportService } from 'src/service/excel-export.service';
 import { SpinnerService } from 'src/service/spinner.service';
@@ -16,7 +17,14 @@ import { UserService } from 'src/service/user.service';
 })
 export class AdminUsersComponent {
   users: UserData[] = [];
-  filters: FilterTable[] = [];
+  filters: FilterTableUser[] = [];
+  names: string[] = [];
+  nameFiltered: string = "";
+  roles: string[] = [];
+  roleFiltered: string = "";
+  emails: string[] = [];
+  emailFiltered: string = "";
+  searchData: string = "";
   usersPersisted: UserData[] = [];
   selectedRow: UserData | null = null;
   rows: number = 10;
@@ -25,7 +33,7 @@ export class AdminUsersComponent {
   user: UserLoginResponse;
   canSeeHome: boolean = false;
   isAdmin: boolean = false;
-  nombres: string[] = []; 
+  nombres: string[] = [];
   visible: boolean = false;
   userForm: FormGroup;
   profileOptions = [
@@ -39,15 +47,19 @@ export class AdminUsersComponent {
     private spinnerService: SpinnerService,
     private authService: AuthService,
     private excelExportService: ExcelExportService,
+    private encryptService: AesService,
     private toastService: ToastService,
     private fb: FormBuilder    
   ) {
     this.user = {
-      permissions: JSON.parse(localStorage.getItem('permissions')!) || [],
-      rol: localStorage.getItem('role')!,
-      token: localStorage.getItem('token')!,
-      nombre: localStorage.getItem('nombre')!,
-      email: localStorage.getItem('email')!
+      permissions: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).permissions || [],
+      rol: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).rol,
+      token: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).token,
+      nombre: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).nombre,
+      email: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).email,
+      apellido: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).apellido,
+      rut: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).rut,
+      idTipoUsuario: JSON.parse(this.encryptService.decrypt(localStorage.getItem('userData') ?? '')).idTipoUsuario
     };
 
     this.resetUserForm();
@@ -84,8 +96,8 @@ export class AdminUsersComponent {
           this.toastService.showToast('error', 'Ocurrió un error', res.mensaje);
         }
       },
-      error: (res) => {
-        if (res.codigo == HttpStatusCode.Unauthorized){
+      error: (res) => {        
+        if (res.status == HttpStatusCode.Unauthorized){
           this.toastService.showToast('error', 'Token no válido', 'Su token de seguridad expiró, por favor vuelva a ingresar.');
           this.logOut();
         }else{
@@ -98,14 +110,17 @@ export class AdminUsersComponent {
   }
 
   editUser(user: UserData){
-    this.usuario.id = user.id;
-    this.usuario.nombre = user.nombre;
-    this.usuario.apellido = user.apellido;
-    this.usuario.email = user.correo;
-    this.usuario.rut = user.rut;
-    this.usuario.idTipoUsuario = Number.parseInt(this.profileOptions.find(profile => profile.label === user.tipoUsuario)?.value!);
-    this.tituloModal = 'Editar Usuario';
-    this.visible = true;
+    let isValid = this.validateUserToDelete(user.id, true);
+    if (isValid){
+      this.usuario.id = user.id;
+      this.usuario.nombre = user.nombre;
+      this.usuario.apellido = user.apellido;
+      this.usuario.email = user.correo;
+      this.usuario.rut = user.rut;
+      this.usuario.idTipoUsuario = user.idTipoUsuario;
+      this.tituloModal = 'Editar Usuario';
+      this.visible = true;
+    }
   }
 
   deleteUserById(id: number){
@@ -124,7 +139,7 @@ export class AdminUsersComponent {
           }
         },
         error: (res) => {
-          if (res.codigo == HttpStatusCode.Unauthorized){
+          if (res.status == HttpStatusCode.Unauthorized){
             this.toastService.showToast('error', 'Token no válido', 'Su token de seguridad expiró, por favor vuelva a ingresar.');
             this.logOut();
           }else{
@@ -203,6 +218,85 @@ export class AdminUsersComponent {
     this.visible = false;
   }
 
+  get nameSelected() {
+    return this.nameFiltered;
+  }
+
+  set nameSelected(value) {
+    this.nameFiltered = value;
+    this.filters = this.filters.filter(item => item.nombre === this.nameSelected);
+    this.generateFilterByData(this.filters);
+  }
+
+  get roleSelected() {
+    return this.roleFiltered;
+  }
+
+  set roleSelected(value) {
+    this.roleFiltered = value;
+    this.filters = this.filters.filter(item => item.tipoUsuario === this.roleFiltered);
+    this.generateFilterByData(this.filters);
+  }
+
+  get emailSelected() {
+    return this.emailFiltered;
+  }
+
+  set emailSelected(value) {
+    this.emailFiltered = value;
+    this.filters = this.filters.filter(item => item.correo === this.emailFiltered);
+    this.generateFilterByData(this.filters);
+  }
+  
+  filterData() {
+    this.users = this.usersPersisted;
+    this.spinnerService.showSpinner();    
+    this.users = this.users.filter(item => 
+      (this.nameSelected === '' || `${item.nombre} ${item.apellido}` === this.nameSelected) &&
+      (this.searchData === '' || `${item.nombre} ${item.apellido}`.includes(this.searchData)) &&
+      (this.roleSelected === '' || item.tipoUsuario === this.roleSelected) &&
+      (this.emailSelected === '' || item.correo === this.emailSelected)
+    );
+    setTimeout(() => {
+      this.spinnerService.hideSpinner();
+    }, 1500);        
+  }
+
+  resetFilter(){
+    this.users = this.usersPersisted;
+    this.nameFiltered = this.roleFiltered = this.emailFiltered = '';
+    this.getFilters();
+    setTimeout(() => {
+      this.spinnerService.hideSpinner();
+    }, 1500);    
+  }
+
+
+  private generateFilterByData(res: FilterTableUser[]){
+    if (this.nameFiltered == ''){
+      this.names = Array.from(new Set(
+        res
+          .map(item => item.nombre?.trim())
+          .filter(center => center)
+      ));
+    }
+
+    if (this.emailFiltered == ''){
+      this.emails = Array.from(new Set(
+        res
+          .map(item => item.correo?.trim())
+          .filter(producerCode => producerCode)
+      ));
+    } 
+    if (this.roleFiltered == ''){
+      this.roles = Array.from(new Set(
+        res
+          .map(item => item.tipoUsuario?.trim())
+          .filter(tipoUsuario => tipoUsuario)
+      ));
+    }
+  }
+  
   private resetUserForm(){
     this.usuario = {
       apellido: '',
@@ -213,11 +307,14 @@ export class AdminUsersComponent {
     }
   }
 
-  private validateUserToDelete(id: number): boolean{
+  private validateUserToDelete(id: number, isEdit: boolean = false): boolean{
     let userData: UserData = this.usersPersisted.find(user => user.id == id)!
     
     if (userData.correo === this.user.email){
-      this.toastService.showToast('error', 'No puede borrar su propio usuario');
+      if (isEdit)
+        this.toastService.showToast('error', 'No puede editar su propio usuario');
+      else
+        this.toastService.showToast('error', 'No puede borrar su propio usuario');
       return false;
     }
 
@@ -233,10 +330,10 @@ export class AdminUsersComponent {
   }
 
   private getFilters(){
-    this.userService.getFilters(this.users).then((res: FilterTable[]) => {
+    this.userService.getFilters(this.users).then((res: FilterTableUser[]) => {
       if (res){
         this.filters = res;
-        this.nombres = [...new Set(res.map(item => `${item.nombre} ${item.apellido}`))];
+        this.generateFilterByData(res);
       }
     });
   }

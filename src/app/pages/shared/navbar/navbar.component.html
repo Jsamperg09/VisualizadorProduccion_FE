@@ -15,26 +15,37 @@
                     </a>
                 </li>
                 <li class="nav-item dropdown" *ngIf="isAdmin">
-                    <a mat-flat-button id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
-                        [routerLink]="['/administrator']" style="width: 200px;" [style]="actualRoute === '/administrator' ? 'background: rgb(0 60 170);' : 'background: white; color:black'">
-                        <mat-icon color="white">supervisor_account</mat-icon>
+                    <a mat-flat-button id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                        style="width: 200px;"
+                        [style.background]="(actualRoute === '/administrator' || actualRoute === '/profile') ? 'rgb(0, 60, 170)' : 'white'"
+                        [style.color]="(actualRoute === '/administrator' || actualRoute === '/profile') ? 'white' : 'black'">
+                        <mat-icon [style.color]="(actualRoute === '/administrator' || actualRoute === '/profile') ? 'white' : 'black'">
+                            supervisor_account
+                        </mat-icon>
                         Administrar Usuarios
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                         <li>
-                            <a class="dropdown-item" mat-flat-button style="border-radius: 0px;"
-                                href="/administrator" [style]="actualRoute === '/administrator' ? 'background: rgb(0 60 170); color: white;' : 'background: white; color:black'">
+                            <a class="dropdown-item" mat-flat-button
+                                [routerLink]="['/administrator']"
+                                [style.background]="actualRoute === '/administrator' ? 'rgb(0, 60, 170)' : 'white'"
+                                [style.color]="actualRoute === '/administrator' ? 'white' : 'black'"
+                                style="border-radius: 0px;">
                                 Usuario y roles
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" mat-flat-button style="border-radius: 0px;"
-                                (click)="logOut()" [style]="actualRoute === '/profile' ? 'background: rgb(0 60 170); color: white;' : 'background: white; color:black'">
+                            <a class="dropdown-item" mat-flat-button
+                                [routerLink]="['/profile']"
+                                [style.background]="actualRoute === '/profile' ? 'rgb(0, 60, 170)' : 'white'"
+                                [style.color]="actualRoute === '/profile' ? 'white' : 'black'"
+                                style="border-radius: 0px;">
                                 Mi perfil
                             </a>
                         </li>
                     </ul>
                 </li>
+                
                 <li class="nav-item dropdown" *ngIf="!isAdmin">
                     <a mat-flat-button id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
                         [routerLink]="['/profile']" style="width: 200px;" [style]="actualRoute === '/profile' ? 'background: rgb(0 60 170);' : 'background: white; color:black'">

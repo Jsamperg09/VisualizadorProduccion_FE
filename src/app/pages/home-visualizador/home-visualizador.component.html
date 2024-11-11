@@ -13,21 +13,17 @@
                 <label for="filter">Filtrar por</label>          
                 <select class="form-select" id="filter" name="Centro" [(ngModel)]="centerSelected">
                     <option hidden value="" disabled selected>Centro</option>
-                    <option [ngValue]="center" *ngFor="let center of centers">{{center}}</option>
+                    <option *ngFor="let center of centers" [ngValue]="center">{{center}}</option>
                 </select>
                 <select class="form-select" [(ngModel)]="productorSelected">
                     <option hidden value="" disabled selected>Productor</option>
-                    @for (filter of filters; track filter) {
-                        <option [value]="filter.producerCode">{{filter.producerCode}}</option>
-                    }
+                    <option *ngFor="let productor of productors" [value]="productor">{{productor}}</option>
                 </select>
                 <select class="form-select" [(ngModel)]="batchSelected">
                     <option hidden value="" disabled selected>Lote</option>
-                    @for (filter of filters; track filter) {
-                        <option [value]="filter.batchProcess">{{filter.batchProcess}}</option>
-                    }
+                    <option *ngFor="let batch of batchs" [value]="batch">{{batch}}</option>
                 </select>
-                <input type="text" class="form-control" placeholder="Buscar por palabra...">
+                <input type="text" class="form-control" [(ngModel)]="searchData" placeholder="Buscar por palabra...">
                 <button class="btn btn-search" (click)="filterData()">
                     <i class="bi bi-search"></i> Buscar
                 </button>

@@ -5,7 +5,8 @@ export interface UserData {
   correo: string
   estado: string
   rut: string
-  tipoUsuario: string
+  tipoUsuario: string,
+  idTipoUsuario: number
 }
 
 export interface UserCreateData {
@@ -17,7 +18,7 @@ export interface UserCreateData {
   idTipoUsuario: number
 }
 
-export interface FilterTable {
+export interface FilterTableUser {
   nombre: string
   apellido: string
   correo: string
